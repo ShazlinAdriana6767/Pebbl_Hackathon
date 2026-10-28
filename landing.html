@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pebbl - We Are Volunteer</title>
+  <link rel="stylesheet" href="navbar.css">
+  <style>
+    :root {
+      --vanilla: #FFEBAF;          /* Signature Yellow */
+      --vanilla-light: #FFF8E3;    /* Light Yellow Tint */
+      --moonstone: #4C9DB0;        /* Teal / Blue Accent */
+      --moonstone-dark: #3B8495;
+      --dark-text: #2C3E50;
+      --card-bg: #FFFFFF;
+      --yellow-accent: #FFD56B;   /* Vibrant Yellow Highlight */
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--vanilla); /* Full Yellow Background */
+      color: var(--dark-text);
+      scroll-behavior: smooth;
+    }
+
+    .primary-nav-btn {
+      background-color: var(--moonstone);
+      color: white !important;
+    }
+
+    .primary-nav-btn:hover {
+      background-color: var(--moonstone-dark);
+    }
+
+    /* Hero Section */
+    .hero-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 4rem 2rem 5rem 2rem;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 3rem;
+      align-items: center;
+      min-height: calc(100vh - 80px);
+    }
+
+    @media (max-width: 900px) {
+      .hero-container {
+        grid-template-columns: 1fr;
+        padding: 2rem 1.5rem;
+      }
+    }
+
+    /* Yellow Highlight Badge */
+    .hero-badge {
+      display: inline-block;
+      background-color: #FFF;
+      color: var(--dark-text);
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      margin-bottom: 1.5rem;
+      border: 2px solid var(--yellow-accent);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+    }
+
+    .hero-title {
+      font-size: 3.2rem;
+      font-weight: 900;
+      line-height: 1.15;
+      color: var(--dark-text);
+      margin-bottom: 1.2rem;
+    }
+
+    .hero-title span {
+      color: var(--moonstone);
+      background: linear-gradient(120deg, transparent 0%, transparent 60%, var(--yellow-accent) 60%);
+    }
+
+    .hero-subtitle {
+      font-size: 1.1rem;
+      color: #4A5568;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+      max-width: 500px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .btn-large {
+      padding: 0.85rem 1.8rem;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 12px;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background-color: var(--moonstone);
+      color: white;
+      box-shadow: 0 4px 14px rgba(76, 157, 176, 0.35);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--moonstone-dark);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background-color: white;
+      color: var(--dark-text);
+      border: 2px solid #E2E8F0;
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--vanilla-light);
+    }
+
+    /* Right Action Card */
+    .hero-card {
+      background: var(--card-bg);
+      border-radius: 24px;
+      padding: 2.5rem;
+      box-shadow: 0 12px 35px rgba(0,0,0,0.07);
+      border: 3px solid #FFFFFF;
+      text-align: center;
+      position: relative;
+    }
+
+    /* Yellow Sparkle Top Accent */
+    .hero-card::before {
+      content: '✦';
+      position: absolute;
+      top: -15px;
+      right: 25px;
+      font-size: 2rem;
+      color: var(--yellow-accent);
+    }
+
+    .hero-card-img {
+      max-width: 190px;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-card h3 {
+      font-size: 1.4rem;
+      margin-bottom: 0.6rem;
+      color: var(--dark-text);
+    }
+
+    .hero-card p {
+      font-size: 0.95rem;
+      color: #718096;
+      margin-bottom: 1.8rem;
+      line-height: 1.5;
+    }
+
+    /* About Us Section (Yellow Vanilla Background) */
+    .about-section {
+      background-color: var(--card-bg);
+      padding: 5rem 2rem;
+      border-top: 3px solid var(--yellow-accent);
+    }
+
+    .about-container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--dark-text);
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .about-placeholder-box {
+      background-color: var(--vanilla-light);
+      border: 2.5px dashed var(--yellow-accent);
+      border-radius: 20px;
+      padding: 4rem 2rem;
+      text-align: center;
+      color: #718096;
+      font-weight: 600;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <a href="landing.html" class="logo-container">
+      <img src="we-are-volunteer-logo.png" alt="We Are Volunteer Logo" class="logo-img" />
+      <span class="logo-text">Pebbl</span>
+    </a>
+    <nav class="nav-links">
+      <a href="#about" class="nav-btn">About Us</a>
+      <a href="login.html" class="nav-btn">Log In</a>
+      <a href="signup.html" class="nav-btn primary-nav-btn">Get Started</a>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <main class="hero-container">
+    
+    <!-- Left Column -->
+    <div class="hero-left">
+      <div class="hero-badge">🌟 HACKATHON PROJECT</div>
+      <h1 class="hero-title">Connecting <span>Volunteers</span> with Local Communities.</h1>
+      <p class="hero-subtitle">
+        Join local volunteer groups, discover impactful initiatives around you, and make a real-world difference effortlessly.
+      </p>
+      <div class="hero-actions">
+        <a href="index.html" class="btn-large btn-primary">Explore Platform</a>
+        <a href="#about" class="btn-large btn-secondary">Learn More</a>
+      </div>
+    </div>
+
+    <!-- Right Column Card -->
+    <div class="hero-right">
+      <div class="hero-card">
+        <img src="we-are-volunteer-logo.png" alt="We Are Volunteer Logo" class="hero-card-img" />
+        <h3>We Are Volunteer</h3>
+        <p>Empowering individuals to build cleaner, greener, and supportive communities together.</p>
+        <a href="signup.html" class="btn-large btn-primary" style="display: block; width: 100%;">Join Us Today</a>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- About Us Section -->
+  <section id="about" class="about-section">
+    <div class="about-container">
+      <h2 class="section-title">About Us</h2>
+      
+      <!-- Blank placeholder -->
+      <div class="about-placeholder-box">
+        <p>✨ [ About Us Content Placeholder ]</p>
+        <p style="font-size: 0.85rem; font-weight: 400; margin-top: 0.5rem; color: #A0AEC0;">
+          Add your team's mission statement, hackathon background, or story here later.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+</body>
+</html>

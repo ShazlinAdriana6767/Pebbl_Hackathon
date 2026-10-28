@@ -1,0 +1,10 @@
+# Sensitive keys
+.env
+.env.local
+
+# Node modules / dependencies
+node_modules/
+
+# OS / Editor junk
+.DS_Store
+.vscode/

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pebbl - Nearby Events</title>
+  
+  <!-- Leaflet Library CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="navbar.css">
+
+  <!-- Page Styles -->
+  <style>
+    :root {
+      --vanilla: #FFEBAF;
+      --moonstone: #4C9DB0;
+      --dark: #2C3E50;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--vanilla);
+      color: var(--dark);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .container {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+    }
+
+    #sidebar {
+      width: 35%;
+      padding: 1.5rem;
+      overflow-y: auto;
+      background: #f8f9fa;
+      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+
+    /* Map container */
+    #map {
+      width: 65%;
+      height: 100%;
+      min-height: 400px;
+      background-color: #e5e3df;
+    }
+
+    select {
+      width: 100%;
+      padding: 0.6rem;
+      border: 2px solid var(--moonstone);
+      border-radius: 6px;
+      margin-bottom: 1.5rem;
+      font-size: 1rem;
+      outline: none;
+      background: white;
+    }
+
+    /* Event Cards changed from Yellow to White */
+    .event-card {
+      background: #ffffff;
+      border-left: 5px solid var(--moonstone);
+      border-top: 1px solid #e0e0e0;
+      border-right: 1px solid #e0e0e0;
+      border-bottom: 1px solid #e0e0e0;
+      padding: 1.2rem;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .event-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .event-card h3 {
+      margin: 0 0 0.5rem 0;
+      color: var(--moonstone);
+      font-size: 1.15rem;
+    }
+
+    .event-card p {
+      margin: 0 0 0.8rem 0;
+      font-size: 0.95rem;
+      line-height: 1.4;
+      color: #4a5568;
+    }
+
+    .tag {
+      display: inline-block;
+      background: var(--moonstone);
+      color: white;
+      padding: 0.25rem 0.7rem;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="logo-container">
+    <img src="we-are-volunteer-logo.png" alt="Logo" class="logo-img" />
+    <span class="logo-text">Pebbl</span>
+  </a>
+  <nav class="nav-links">
+    <a href="index.html" class="nav-btn">Home</a>
+    <a href="events.html" class="nav-btn active">📍 Events Map</a>
+    <a href="communities.html" class="nav-btn">Clubs</a>
+    <a href="profile.html" class="nav-btn">My Profile</a>
+    <button id="logout-btn" class="logout-btn">Log Out</button>
+  </nav>
+</header>
+
+  <div class="container">
+    <!-- Events List Sidebar -->
+    <div id="sidebar">
+      <h3 style="margin-top: 0; color: var(--dark);">📍 Nearby Volunteer Events</h3>
+      <label for="category-filter" style="display: block; margin-bottom: 0.5rem;"><strong>Filter by Interest:</strong></label>
+      <select id="category-filter">
+        <option value="All">All Categories</option>
+        <option value="Environment & Nature">Environment & Nature</option>
+        <option value="Community & Elderly Care">Community & Elderly Care</option>
+        <option value="Sports & Marathons">Sports & Marathons</option>
+        <option value="Education & Mentorship">Education & Mentorship</option>
+      </select>
+
+      <div id="events-container">
+        <p>Loading nearby events on map...</p>
+      </div>
+    </div>
+
+    <!-- Leaflet Map Container -->
+    <div id="map"></div>
+  </div>
+
+  <!-- Leaflet JS Library -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Application Logic Module -->
+  <script type="module" src="events.js"></script>
+</body>
+</html>

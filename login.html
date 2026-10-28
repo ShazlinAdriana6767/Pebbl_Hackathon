@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pebbl - Login & Sign Up</title>
+  <link rel="stylesheet" href="navbar.css">
+  <style>
+  body { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    display: flex; 
+    justify-content: center; 
+    align-items: stretch; 
+    flex-direction: column;
+    min-height: 100vh; 
+    background-color: #FFEBAF; /* Vanilla */
+    margin: 0; 
+  }
+  .auth-card { 
+    background: #FFFFFF; 
+    padding: 2.5rem 2rem; 
+    border-radius: 16px; 
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08); 
+    width: 340px; 
+    text-align: center; 
+    margin: auto;
+  }
+  h2 { 
+    margin-bottom: 1.5rem; 
+    color: #2C3E50; 
+    font-weight: 700;
+  }
+  input { 
+    width: 100%; 
+    padding: 0.85rem; 
+    margin-bottom: 1rem; 
+    border: 1.5px solid #E2E8F0; 
+    border-radius: 8px; 
+    box-sizing: border-box; 
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input:focus {
+    border-color: #4C9DB0; /* Moonstone focus outline */
+  }
+  button { 
+    width: 100%; 
+    padding: 0.85rem; 
+    border: none; 
+    border-radius: 8px; 
+    background-color: #4C9DB0; /* Moonstone */
+    color: white; 
+    font-weight: 600; 
+    font-size: 1rem;
+    cursor: pointer; 
+    margin-bottom: 0.75rem; 
+    transition: background-color 0.2s ease;
+  }
+  button:hover { 
+    background-color: #3B8495; /* Darker Moonstone hover */
+  }
+  .google-btn { 
+    background-color: #4C9DB0; /* Unified Moonstone accent */
+  }
+  .google-btn:hover {
+    background-color: #3B8495;
+  }
+  .switch-btn { 
+    background: none; 
+    color: #4C9DB0; /* Moonstone text link */
+    text-decoration: none; 
+    font-weight: 600;
+    font-size: 0.9rem; 
+    margin-top: 0.5rem; 
+  }
+  .switch-btn:hover {
+    text-decoration: underline;
+  }
+  #message { 
+    margin-top: 1rem; 
+    color: #E53E3E; 
+    font-size: 0.85rem; 
+  }
+</style>
+</head>
+<body>
+
+  <header>
+    <a href="landing.html" class="logo-container">
+      <img src="we-are-volunteer-logo.png" alt="We Are Volunteer Logo" class="logo-img" />
+      <span class="logo-text">Pebbl</span>
+    </a>
+    <nav class="nav-links">
+      <a href="landing.html#about" class="nav-btn">About Us</a>
+      <a href="signup.html" class="nav-btn primary-nav-btn">Sign Up</a>
+    </nav>
+  </header>
+
+  <div class="auth-card">
+    <h2 id="form-title">Login to Pebbl</h2>
+
+    <form id="auth-form">
+      <input type="email" id="email" placeholder="Email Address" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <button type="submit" id="submit-btn">Login</button>
+    </form>
+
+    <button id="google-btn" class="google-btn">Sign in with Google</button>
+    <!-- Replace <button id="toggle-mode-btn" ...> with this link: -->
+<p class="switch-text">
+  Need an account? <a href="signup.html" class="switch-link">Sign Up</a>
+</p>
+    <div id="message"></div>
+  </div>
+
+  <!-- Connect script module -->
+  <script type="module" src="auth.js"></script>
+</body>
+</html>

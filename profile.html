@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pebbl - User Profile</title>
+  <link rel="stylesheet" href="navbar.css">
+  <style>
+    :root {
+      --vanilla: #FFEBAF;
+      --vanilla-light: #FFF8E3;
+      --moonstone: #4C9DB0;
+      --moonstone-dark: #3B8495;
+      --dark-text: #2C3E50;
+      --card-bg: #FFFFFF;
+      --yellow-accent: #FFD56B;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--vanilla);
+      color: var(--dark-text);
+      min-height: 100vh;
+    }
+
+    /* Profile Page Layout */
+    .profile-container {
+      max-width: 1050px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .profile-container { grid-template-columns: 1fr; }
+    }
+
+    /* LEFT SIDEBAR */
+    .sidebar { display: flex; flex-direction: column; gap: 1rem; }
+
+    .user-info-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 1.8rem 1.5rem;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .avatar-circle {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--moonstone), var(--moonstone-dark));
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      font-weight: 800;
+      margin: 0 auto 1rem;
+      box-shadow: 0 4px 10px rgba(76, 157, 176, 0.3);
+    }
+
+    .user-name { font-size: 1.3rem; font-weight: 800; color: var(--dark-text); }
+    .user-pronouns { font-size: 0.85rem; color: #718096; margin-top: 0.2rem; }
+
+    .customize-btn {
+      width: 100%;
+      background-color: var(--moonstone);
+      color: white;
+      border: none;
+      padding: 0.7rem;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      margin-top: 1.2rem;
+      transition: background 0.2s;
+    }
+
+    .customize-btn:hover { background-color: var(--moonstone-dark); }
+
+    /* Account Stats Panel */
+    .stats-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      overflow: hidden;
+    }
+
+    .stat-row {
+      display: flex;
+      align-items: center;
+      padding: 0.9rem 1.2rem;
+      border-bottom: 1px solid #F0F4F8;
+      gap: 0.85rem;
+    }
+
+    .stat-row:last-child { border-bottom: none; }
+
+    .stat-icon {
+      background: var(--moonstone);
+      color: white;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .stat-details { display: flex; flex-direction: column; }
+    .stat-label { font-size: 0.72rem; color: #A0AEC0; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
+    .stat-value { font-size: 0.95rem; font-weight: 800; color: var(--dark-text); }
+
+    /* RIGHT MAIN CONTENT */
+    .main-content { display: flex; flex-direction: column; gap: 1rem; }
+
+    /* Navigation Tabs Bar */
+    .tab-nav {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .tab-btn {
+      flex: 1;
+      background-color: #EBF7FA;
+      color: var(--moonstone-dark);
+      border: none;
+      padding: 0.8rem 0.5rem;
+      border-radius: 12px 12px 0 0;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background-color: var(--moonstone);
+      color: white;
+    }
+
+    .tab-btn:hover:not(.active) { background-color: #DDEFF4; }
+
+    /* Main Tab Content Card */
+    .content-card {
+      background: var(--card-bg);
+      border-radius: 0 0 16px 16px;
+      padding: 1.8rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      min-height: 420px;
+    }
+
+    /* Quick Circle Action Icons Row */
+    .quick-actions-row {
+      display: flex;
+      gap: 1.8rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid #EDF2F7;
+      margin-bottom: 1.5rem;
+    }
+
+    .action-circle-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.45rem;
+      cursor: pointer;
+    }
+
+    .circle-btn {
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.4rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      transition: transform 0.2s, background-color 0.2s;
+    }
+
+    .circle-btn:hover { transform: scale(1.06); }
+
+    .circle-btn.favorites { background-color: #6C72CB; }
+    .circle-btn.add-new { background-color: var(--moonstone); }
+    .circle-btn.badges { background-color: #FFB703; }
+
+    .action-label { font-size: 0.82rem; font-weight: 700; color: #4A5568; }
+
+    /* Badges Grid View */
+    .badges-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .badge-card {
+      background: #FAFAFA;
+      border: 1.5px solid #EDF2F7;
+      border-radius: 14px;
+      padding: 1.2rem;
+      text-align: center;
+    }
+
+    .badge-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .badge-title { font-weight: 800; font-size: 0.95rem; color: var(--dark-text); }
+    .badge-desc { font-size: 0.8rem; color: #718096; margin-top: 0.3rem; }
+
+    /* Post Cards */
+    .post-card {
+      border: 1.5px solid #EDF2F7;
+      border-radius: 14px;
+      padding: 1.2rem;
+      margin-bottom: 1.2rem;
+      background: white;
+    }
+
+    .post-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .post-author { font-weight: 700; color: var(--dark-text); display: flex; align-items: center; gap: 0.4rem; }
+    .post-time { font-size: 0.8rem; color: #A0AEC0; }
+
+    .post-image-preview {
+      width: 100%;
+      max-height: 350px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin: 0.75rem 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header Navigation Bar -->
+<header>
+  <a href="index.html" class="logo-container">
+    <img src="we-are-volunteer-logo.png" alt="Logo" class="logo-img" />
+    <span class="logo-text">Pebbl</span>
+  </a>
+  <nav class="nav-links">
+    <a href="index.html" class="nav-btn">Home</a>
+    <a href="events.html" class="nav-btn">📍 Events Map</a>
+    <a href="communities.html" class="nav-btn">Clubs</a>
+    <a href="profile.html" class="nav-btn active">My Profile</a>
+    <button id="logout-btn" class="logout-btn">Log Out</button>
+  </nav>
+</header>
+
+  <div class="profile-container">
+    
+    <!-- LEFT SIDEBAR -->
+    <div class="sidebar">
+      
+      <!-- User Info Card -->
+      <div class="user-info-card">
+        <div id="user-avatar" class="avatar-circle">P</div>
+        <div id="user-name" class="user-name">Loading...</div>
+        <div id="user-pronouns" class="user-pronouns">Volunteer Member</div>
+        <button id="customize-profile-btn" class="customize-btn">⚙️ Customize Profile</button>
+      </div>
+
+      <!-- Account Stats Card -->
+      <div class="stats-card">
+        <div class="stat-row">
+          <div class="stat-icon">📅</div>
+          <div class="stat-details">
+            <span class="stat-label">Member Since</span>
+            <span id="stat-member-since" class="stat-value">Oct 2026</span>
+          </div>
+        </div>
+
+        <div class="stat-row">
+          <div class="stat-icon">📝</div>
+          <div class="stat-details">
+            <span class="stat-label">Total Posts</span>
+            <span id="stat-posts-count" class="stat-value">0</span>
+          </div>
+        </div>
+
+        <div class="stat-row">
+          <div class="stat-icon">🏆</div>
+          <div class="stat-details">
+            <span class="stat-label">Community Badges</span>
+            <span id="stat-badges-count" class="stat-value">3 Earned</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT MAIN CONTENT -->
+    <div class="main-content">
+
+      <!-- Navigation Tabs (Pink replaced with Moonstone Blue) -->
+      <div class="tab-nav">
+        <button class="tab-btn active" id="btn-tab-profile">📇 Profile</button>
+        <button class="tab-btn" id="btn-tab-posts">📝 Posts</button>
+        <button class="tab-btn" id="btn-tab-badges">🏆 Badges</button>
+      </div>
+
+      <!-- Content Area -->
+      <div class="content-card">
+
+        <!-- Quick Action Row (Favorites, Add New, Badges) -->
+        <div class="quick-actions-row">
+          <div class="action-circle-item" id="quick-favorites">
+            <div class="circle-btn favorites">♥</div>
+            <span class="action-label">Favorites</span>
+          </div>
+          <div class="action-circle-item" id="quick-add-post">
+            <div class="circle-btn add-new">+</div>
+            <span class="action-label">Add New</span>
+          </div>
+          <div class="action-circle-item" id="quick-view-badges">
+            <div class="circle-btn badges">🏆</div>
+            <span class="action-label">Badges</span>
+          </div>
+        </div>
+
+        <!-- Dynamic View Container -->
+        <div id="tab-content-view">
+          <h3 style="margin-bottom: 1rem;">Recent Activity & Posts</h3>
+          <div id="user-posts-container">
+            <p style="color: #666;">Loading user posts...</p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <script type="module">
+    import { auth, db } from "./firebase.js";
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { 
+      collection, 
+      query, 
+      where, 
+      orderBy, 
+      onSnapshot, 
+      doc, 
+      getDoc 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const userNameEl = document.getElementById("user-name");
+    const userAvatarEl = document.getElementById("user-avatar");
+    const statPostsCountEl = document.getElementById("stat-posts-count");
+    const userPostsContainer = document.getElementById("user-posts-container");
+    const tabContentView = document.getElementById("tab-content-view");
+    const logoutBtn = document.getElementById("logout-btn");
+
+    let currentUserId = null;
+
+    // 1. Check Auth & Load User Profile Details
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUserId = user.uid;
+        let displayName = user.email.split("@")[0];
+
+        try {
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          if (userDoc.exists() && userDoc.data().name) {
+            displayName = userDoc.data().name;
+          }
+        } catch (err) {
+          console.log("Error loading user profile:", err);
+        }
+
+        userNameEl.textContent = displayName;
+        userAvatarEl.textContent = displayName.charAt(0).toUpperCase();
+
+        renderPostsView();
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+
+    // 2. Render Posts View
+    function renderPostsView() {
+      tabContentView.innerHTML = `
+        <h3 style="margin-bottom: 1rem;">My Volunteer Posts</h3>
+        <div id="user-posts-container"><p style="color: #666;">Loading posts...</p></div>
+      `;
+      loadUserPosts(currentUserId);
+    }
+
+    // 3. Load Firestore Posts for Current User
+    function loadUserPosts(uid) {
+      const container = document.getElementById("user-posts-container");
+      if (!container) return;
+
+      const q = query(
+        collection(db, "posts"),
+        where("authorId", "==", uid),
+        orderBy("createdAt", "desc")
+      );
+
+      onSnapshot(q, (snapshot) => {
+        container.innerHTML = "";
+        statPostsCountEl.textContent = snapshot.size;
+
+        if (snapshot.empty) {
+          container.innerHTML = `<p style="color: #666;">You haven't published any volunteer posts yet!</p>`;
+          return;
+        }
+
+        snapshot.forEach((docSnap) => {
+          const post = docSnap.data();
+          const postDate = post.createdAt ? new Date(post.createdAt.toDate()).toLocaleDateString() : "Just now";
+
+          const card = document.createElement("div");
+          card.className = "post-card";
+          card.innerHTML = `
+            <div class="post-header">
+              <span class="post-author">🟢 ${escapeHTML(post.authorEmail || "Volunteer")}</span>
+              <span class="post-time">${postDate}</span>
+            </div>
+            <div style="font-size: 0.98rem; line-height: 1.4;">${escapeHTML(post.content)}</div>
+
+            ${post.imageUrl ? `
+              <img src="${post.imageUrl}" alt="Uploaded Post Image" class="post-image-preview">
+            ` : ""}
+
+            <div style="margin-top: 0.75rem;">
+              ${post.location ? `<span style="background: var(--vanilla); padding: 0.25rem 0.6rem; border-radius: 12px; font-size: 0.8rem; font-weight: 700;">📍 ${escapeHTML(post.location)}</span>` : ""}
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      });
+    }
+
+    // 4. Render Badges View (Community Awarded Badges)
+    function renderBadgesView() {
+      tabContentView.innerHTML = `
+        <h3 style="margin-bottom: 0.5rem;">Community Awarded Badges</h3>
+        <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1.2rem;">Earn badges by participating in local volunteer events & communities.</p>
+        
+        <div class="badges-grid">
+          <div class="badge-card">
+            <div class="badge-icon">🏖️</div>
+            <div class="badge-title">Coast Cleanup Hero</div>
+            <div class="badge-desc">Awarded by Kajang River Cleaners</div>
+          </div>
+          <div class="badge-card">
+            <div class="badge-icon">🌳</div>
+            <div class="badge-title">Tree Planter</div>
+            <div class="badge-desc">Awarded by Eco Volunteers</div>
+          </div>
+          <div class="badge-card">
+            <div class="badge-icon">🍲</div>
+            <div class="badge-title">Community Kitchen Helper</div>
+            <div class="badge-desc">Awarded by Food Bank Club</div>
+          </div>
+        </div>
+      `;
+    }
+
+    // 5. Render Favorites View
+    function renderFavoritesView() {
+      tabContentView.innerHTML = `
+        <h3 style="margin-bottom: 0.5rem;">Saved Favorites</h3>
+        <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1.2rem;">Postings and volunteer committees you saved for quick access.</p>
+        <div class="post-card">
+          <div class="post-header">
+            <span class="post-author">⭐ Kajang River Cleanup Drive</span>
+            <span class="post-time">Community Club</span>
+          </div>
+          <p style="font-size: 0.9rem; color: #4A5568;">Join us this Saturday for our weekly river clean-up!</p>
+        </div>
+      `;
+    }
+
+    // Tab Button Handlers
+    document.getElementById("btn-tab-profile").addEventListener("click", () => {
+      setActiveTab("btn-tab-profile");
+      renderPostsView();
+    });
+
+    document.getElementById("btn-tab-posts").addEventListener("click", () => {
+      setActiveTab("btn-tab-posts");
+      renderPostsView();
+    });
+
+    document.getElementById("btn-tab-badges").addEventListener("click", () => {
+      setActiveTab("btn-tab-badges");
+      renderBadgesView();
+    });
+
+    // Quick Circle Click Handlers
+    document.getElementById("quick-favorites").addEventListener("click", () => {
+      renderFavoritesView();
+    });
+
+    document.getElementById("quick-add-post").addEventListener("click", () => {
+      window.location.href = "index.html";
+    });
+
+    document.getElementById("quick-view-badges").addEventListener("click", () => {
+      setActiveTab("btn-tab-badges");
+      renderBadgesView();
+    });
+
+    function setActiveTab(tabId) {
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      document.getElementById(tabId).classList.add("active");
+    }
+
+    // Logout Handler
+    logoutBtn.addEventListener("click", () => {
+      signOut(auth).then(() => {
+        window.location.href = "login.html";
+      });
+    });
+
+    function escapeHTML(str) {
+      return String(str).replace(/[&<>'"]/g, 
+        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+      );
+    }
+  </script>
+</body>
+</html>

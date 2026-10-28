@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pebbl - Home Feed</title>
+  <link rel="stylesheet" href="navbar.css">
+  <style>
+    :root {
+      --vanilla: #FFEBAF;
+      --vanilla-light: #FFF8E3;
+      --moonstone: #4C9DB0;
+      --moonstone-dark: #3B8495;
+      --dark-text: #2C3E50;
+      --card-bg: #FFFFFF;
+      --yellow-accent: #FFD56B;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--vanilla);
+      color: var(--dark-text);
+      min-height: 100vh;
+    }
+
+    /* Main Container */
+    .main-container {
+      max-width: 750px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    /* Top Feed Bar with Create Post Button */
+    .feed-header-bar {
+      background: white;
+      padding: 1.2rem 1.5rem;
+      border-radius: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      margin-bottom: 1.5rem;
+    }
+
+    .feed-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--dark-text);
+    }
+
+    .open-create-btn {
+      background-color: var(--moonstone);
+      color: white;
+      border: none;
+      padding: 0.65rem 1.2rem;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      box-shadow: 0 4px 10px rgba(76, 157, 176, 0.3);
+    }
+
+    .open-create-btn:hover {
+      background-color: var(--moonstone-dark);
+      transform: translateY(-1px);
+    }
+
+    /* Modal Overlay */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(3px);
+    }
+
+    .modal-card {
+      background: white;
+      padding: 2rem;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 520px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      position: relative;
+    }
+
+    .modal-card h3 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin-bottom: 1.2rem;
+      color: var(--dark-text);
+    }
+
+    textarea, input[type="text"] {
+      width: 100%;
+      padding: 0.85rem;
+      border: 1.5px solid #E2E8F0;
+      border-radius: 12px;
+      margin-bottom: 1rem;
+      font-family: inherit;
+      outline: none;
+      font-size: 0.95rem;
+    }
+
+    textarea:focus, input[type="text"]:focus {
+      border-color: var(--moonstone);
+    }
+
+    textarea {
+      height: 110px;
+      resize: vertical;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: flex-end;
+      margin-top: 1rem;
+    }
+
+    .cancel-btn {
+      padding: 0.7rem 1.2rem;
+      background: #EDF2F7;
+      color: #4A5568;
+      border: none;
+      border-radius: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .submit-btn {
+      background-color: var(--moonstone);
+      color: white;
+      border: none;
+      padding: 0.7rem 1.4rem;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .submit-btn:hover { background-color: var(--moonstone-dark); }
+
+    /* Feed Cards */
+    .post-card {
+      background: white;
+      border-radius: 16px;
+      padding: 1.4rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      margin-bottom: 1.2rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Standard Header Navigation -->
+<header>
+  <a href="index.html" class="logo-container">
+    <img src="we-are-volunteer-logo.png" alt="Logo" class="logo-img" />
+    <span class="logo-text">Pebbl</span>
+  </a>
+  <nav class="nav-links">
+    <span id="user-display-name" class="user-greeting">Hello, Adriana!</span>
+    <a href="index.html" class="nav-btn active">Home</a>
+    <a href="events.html" class="nav-btn">📍 Events Map</a>
+    <a href="communities.html" class="nav-btn">Clubs</a>
+    <a href="profile.html" class="nav-btn">My Profile</a>
+    <button id="logout-btn" class="logout-btn">Log Out</button>
+  </nav>
+</header>
+
+  <div class="main-container">
+    
+    <!-- Top Action Bar -->
+    <div class="feed-header-bar">
+      <span class="feed-title">Community Feed</span>
+      <button class="open-create-btn" id="open-modal-btn">➕ Publish Post</button>
+    </div>
+
+    <!-- Feed Container -->
+    <div id="feed-container">
+      <p style="color: #666; text-align: center; margin-top: 2rem;">Loading posts...</p>
+    </div>
+
+  </div>
+
+  <!-- Create Post Modal Dialog -->
+  <div class="modal-overlay" id="post-modal">
+    <div class="modal-card">
+      <h3>Share a Volunteer Event or Story</h3>
+      
+      <textarea id="post-content" placeholder="What volunteer activities are happening near you?"></textarea>
+      <input type="text" id="post-location" placeholder="📍 Add location (e.g. Kajang Community Center)">
+      
+      <!-- Image Upload Input -->
+      <label for="post-image" style="font-weight: 700; font-size: 0.88rem; display: block; margin-bottom: 0.4rem; color: #4A5568;">
+        📷 Attach an Image (Optional):
+      </label>
+      <input type="file" id="post-image" accept="image/*" style="margin-bottom: 1rem;">
+      
+      <!-- Image Preview -->
+      <div id="image-preview-container" style="display: none; margin-bottom: 1rem; text-align: center;">
+        <img id="image-preview" src="" alt="Preview" style="max-height: 200px; border-radius: 10px; object-fit: cover; width: 100%;">
+      </div>
+
+      <p id="status-msg" style="margin-bottom: 0.8rem; font-size: 0.88rem; font-weight: 700;"></p>
+
+      <div class="modal-actions">
+        <button class="cancel-btn" id="close-modal-btn">Cancel</button>
+        <button id="submit-post-btn" class="submit-btn">Publish Post</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { auth, db } from "./firebase.js";
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { 
+      collection, 
+      addDoc, 
+      query, 
+      orderBy, 
+      onSnapshot, 
+      serverTimestamp,
+      doc,
+      getDoc 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const userDisplayName = document.getElementById("user-display-name");
+    const logoutBtn = document.getElementById("logout-btn");
+    const postContent = document.getElementById("post-content");
+    const postLocation = document.getElementById("post-location");
+    const postImageInput = document.getElementById("post-image");
+    const imagePreviewContainer = document.getElementById("image-preview-container");
+    const imagePreview = document.getElementById("image-preview");
+    const submitPostBtn = document.getElementById("submit-post-btn");
+    const statusMsg = document.getElementById("status-msg");
+    const feedContainer = document.getElementById("feed-container");
+
+    const modal = document.getElementById("post-modal");
+    const openModalBtn = document.getElementById("open-modal-btn");
+    const closeModalBtn = document.getElementById("close-modal-btn");
+
+    let currentUser = null;
+    let base64ImageString = "";
+
+    // Modal Control
+    openModalBtn.addEventListener("click", () => modal.style.display = "flex");
+    closeModalBtn.addEventListener("click", () => {
+      modal.style.display = "none";
+      resetForm();
+    });
+
+    // Handle Image Preview & Base64
+    postImageInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        if (file.size > 1024 * 1024) {
+          statusMsg.style.color = "#E53E3E";
+          statusMsg.textContent = "⚠️ Image size must be under 1MB.";
+          postImageInput.value = "";
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          base64ImageString = evt.target.result;
+          imagePreview.src = base64ImageString;
+          imagePreviewContainer.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+      } else {
+        base64ImageString = "";
+        imagePreviewContainer.style.display = "none";
+      }
+    });
+
+    // 1. Check Auth & Load User Profile Name
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUser = user;
+        try {
+          const userDocRef = doc(db, "users", user.uid);
+          const userDocSnap = await getDoc(userDocRef);
+
+          if (userDocSnap.exists() && userDocSnap.data().name) {
+            userDisplayName.textContent = `Hello, ${userDocSnap.data().name}!`;
+          } else {
+            userDisplayName.textContent = `Hello, ${user.email.split("@")[0]}!`;
+          }
+        } catch (err) {
+          userDisplayName.textContent = `Hello, ${user.email.split("@")[0]}!`;
+        }
+        loadPosts();
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+
+    // 2. Submit Post
+    submitPostBtn.addEventListener("click", async () => {
+      const content = postContent.value.trim();
+      const location = postLocation.value.trim();
+
+      if (!content && !base64ImageString) {
+        statusMsg.style.color = "#E53E3E";
+        statusMsg.textContent = "Please add text or select an image!";
+        return;
+      }
+
+      try {
+        submitPostBtn.disabled = true;
+        submitPostBtn.textContent = "Publishing...";
+
+        await addDoc(collection(db, "posts"), {
+          authorId: currentUser.uid,
+          authorEmail: currentUser.email,
+          content: content,
+          location: location || "General",
+          imageUrl: base64ImageString || null,
+          createdAt: serverTimestamp()
+        });
+
+        modal.style.display = "none";
+        resetForm();
+        statusMsg.textContent = "";
+      } catch (err) {
+        statusMsg.style.color = "#E53E3E";
+        statusMsg.textContent = `Error: ${err.message}`;
+      } finally {
+        submitPostBtn.disabled = false;
+        submitPostBtn.textContent = "Publish Post";
+      }
+    });
+
+    function resetForm() {
+      postContent.value = "";
+      postLocation.value = "";
+      postImageInput.value = "";
+      base64ImageString = "";
+      imagePreviewContainer.style.display = "none";
+      statusMsg.textContent = "";
+    }
+
+    // 3. Load Real-time Feed Posts
+    function loadPosts() {
+      const postsQuery = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+
+      onSnapshot(postsQuery, (snapshot) => {
+        feedContainer.innerHTML = "";
+
+        if (snapshot.empty) {
+          feedContainer.innerHTML = `<p style="color: #666; text-align: center;">No volunteer posts yet. Click Publish Post to share!</p>`;
+          return;
+        }
+
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          const postDate = data.createdAt ? new Date(data.createdAt.toDate()).toLocaleString() : "Just now";
+
+          const card = document.createElement("div");
+          card.className = "post-card";
+          card.innerHTML = `
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.6rem; font-size: 0.85rem; color: #718096;">
+              <strong>${escapeHTML(data.authorEmail || "Volunteer")}</strong>
+              <span>${postDate}</span>
+            </div>
+            <div style="margin-bottom: 0.75rem; font-size: 1rem; line-height: 1.5;">${escapeHTML(data.content)}</div>
+            
+            ${data.imageUrl ? `
+              <div style="margin-bottom: 0.75rem;">
+                <img src="${data.imageUrl}" alt="Volunteer Post Image" style="width: 100%; max-height: 360px; object-fit: cover; border-radius: 10px;">
+              </div>
+            ` : ''}
+
+            ${data.location ? `<span style="background: var(--vanilla-light); padding: 0.25rem 0.65rem; border-radius: 12px; font-size: 0.8rem; font-weight: 700; color: var(--moonstone-dark);">📍 ${escapeHTML(data.location)}</span>` : ""}
+          `;
+
+          feedContainer.appendChild(card);
+        });
+      });
+    }
+
+    // Logout
+    logoutBtn.addEventListener("click", () => {
+      signOut(auth).then(() => window.location.href = "login.html");
+    });
+
+    function escapeHTML(str) {
+      return String(str).replace(/[&<>'"]/g, 
+        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+      );
+    }
+  </script>
+</body>
+</html>

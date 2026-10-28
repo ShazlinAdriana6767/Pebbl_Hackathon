@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pebbl - Complete Your Profile</title>
+  <link rel="stylesheet" href="navbar.css">
+  <style>
+    :root {
+      --vanilla: #FFEBAF;
+      --moonstone: #4C9DB0;
+      --moonstone-dark: #3B8495;
+      --dark-text: #2C3E50;
+    }
+
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      display: flex; 
+      justify-content: flex-start; 
+      align-items: stretch; 
+      flex-direction: column;
+      min-height: 100vh; 
+      background-color: var(--vanilla); 
+      margin: 0; 
+    }
+
+    .profile-card { 
+      background: #FFFFFF; 
+      padding: 2.5rem 2rem; 
+      border-radius: 16px; 
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08); 
+      width: 350px; 
+      margin: auto;
+    }
+
+    h2 { 
+      margin-bottom: 0.5rem; 
+      color: var(--dark-text); 
+      font-weight: 700;
+      text-align: center;
+    }
+
+    p {
+      text-align: center;
+      color: #666;
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      font-size: 0.9rem;
+      color: var(--dark-text);
+    }
+
+    input, select { 
+      width: 100%; 
+      padding: 0.75rem; 
+      margin-bottom: 1rem; 
+      border: 1.5px solid #E2E8F0; 
+      border-radius: 8px; 
+      box-sizing: border-box; 
+      outline: none;
+      font-family: inherit;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--moonstone);
+    }
+
+    button { 
+      width: 100%; 
+      padding: 0.85rem; 
+      border: none; 
+      border-radius: 8px; 
+      background-color: var(--moonstone); 
+      color: white; 
+      font-weight: 600; 
+      font-size: 1rem;
+      cursor: pointer; 
+      margin-top: 0.5rem;
+      transition: background-color 0.2s;
+    }
+
+    button:hover { 
+      background-color: var(--moonstone-dark); 
+    }
+
+    #message { 
+      margin-top: 1rem; 
+      color: #E53E3E; 
+      font-size: 0.85rem; 
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="index.html" class="logo-container">
+      <img src="we-are-volunteer-logo.png" alt="We Are Volunteer Logo" class="logo-img" />
+      <span class="logo-text">Pebbl</span>
+    </a>
+  </header>
+
+  <div class="profile-card">
+    <h2>Complete Your Profile</h2>
+    <p>Tell us a bit about yourself to personalize your volunteer experience!</p>
+
+    <form id="profile-form">
+      <label for="full-name">Full Name</label>
+      <input type="text" id="full-name" placeholder="e.g. Alex Tan" required />
+
+      <label for="age">Age</label>
+      <input type="number" id="age" min="10" max="100" placeholder="e.g. 21" required />
+
+      <label for="gender">Gender</label>
+      <select id="gender" required>
+        <option value="" disabled selected>Select gender</option>
+        <option value="Female">Female</option>
+        <option value="Male">Male</option>
+        <option value="Non-binary">Non-binary</option>
+        <option value="Prefer not to say">Prefer not to say</option>
+      </select>
+
+<label for="interests">Primary Volunteering Interest</label>
+<select id="interests" required>
+  <option value="" disabled selected>Select primary interest</option>
+  <option value="Sports & Marathons">Sports & Marathons</option>
+  <option value="Environment & Nature">Environment & Nature</option>
+  <option value="Animal Welfare">Animal Welfare</option>
+  <option value="Community & Elderly Care">Community & Elderly Care</option>
+  <option value="Education & Youth">Education & Youth</option>
+  <option value="Disaster Relief & First Aid">Disaster Relief & First Aid</option>
+  <option value="Arts & Cultural Events">Arts & Cultural Events</option>
+  <option value="Others">Others</option>
+</select>
+
+      <button type="submit" id="save-btn">Save Profile & Continue</button>
+    </form>
+
+    <div id="message"></div>
+  </div>
+
+  <script type="module" src="profile-register.js"></script>
+</body>
+</html>
