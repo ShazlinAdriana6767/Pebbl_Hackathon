@@ -3,156 +3,156 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pebbl - Nearby Events</title>
+  <title>Pebbl - Volunteer Events Map</title>
   
-  <!-- Leaflet Library CSS -->
+  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="navbar.css">
 
-  <!-- Page Styles -->
   <style>
     :root {
       --vanilla: #FFEBAF;
+      --vanilla-light: #FFF8E3;
       --moonstone: #4C9DB0;
-      --dark: #2C3E50;
+      --moonstone-dark: #3B8495;
+      --dark-text: #000000;
+      --card-bg: #FFFFFF;
+      --yellow-accent: #FFD56B;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--vanilla); color: var(--dark-text); min-height: 100vh; overflow: hidden; }
 
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: var(--vanilla);
-      color: var(--dark);
-      height: 100vh;
+    /* UNIFIED HEADER STYLES */
+    header {
+      background-color: var(--card-bg);
+      padding: 0.8rem 2rem;
       display: flex;
-      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      height: 60px;
+      position: relative; z-index: 1000;
+      border-bottom: 3px solid var(--yellow-accent);
     }
+    .logo-container { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+    .logo-img { height: 38px; width: auto; object-fit: contain; }
+    .logo-text { font-size: 1.5rem; font-weight: 800; color: var(--moonstone); }
+    .nav-links { display: flex; gap: 0.75rem; align-items: center; }
+    .nav-btn, .logout-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      text-decoration: none; font-weight: 700; font-size: 0.88rem;
+      height: 38px; padding: 0 1.1rem; border-radius: 12px; cursor: pointer; border: none;
+    }
+    .nav-btn { background-color: transparent; color: #2C3E50; }
+    .nav-btn:hover { background-color: var(--vanilla-light); color: var(--moonstone-dark); }
+    .nav-btn.active { background-color: var(--moonstone) !important; color: #FFFFFF !important; }
+    .logout-btn { background-color: transparent; color: #E53E3E; border: 1.5px solid #E53E3E; }
 
-    .container {
+    /* TWO-COLUMN INTERFACE LAYOUT */
+    .map-container {
       display: flex;
-      flex: 1;
-      min-height: 0;
+      height: calc(100vh - 60px);
       width: 100%;
     }
 
+    /* Left Sidebar List View */
     #sidebar {
-      width: 35%;
-      padding: 1.5rem;
-      overflow-y: auto;
-      background: #f8f9fa;
-      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-      z-index: 1000;
-    }
-
-    /* Map container */
-    #map {
-      width: 65%;
-      height: 100%;
-      min-height: 400px;
-      background-color: #e5e3df;
-    }
-
-    select {
-      width: 100%;
-      padding: 0.6rem;
-      border: 2px solid var(--moonstone);
-      border-radius: 6px;
-      margin-bottom: 1.5rem;
-      font-size: 1rem;
-      outline: none;
+      width: 38%;
+      max-width: 420px;
+      min-width: 300px;
       background: white;
+      padding: 1.25rem;
+      overflow-y: auto;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+      z-index: 10;
     }
 
-    /* Event Cards changed from Yellow to White */
+    #sidebar h3 {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--dark-text);
+      margin-bottom: 0.8rem;
+    }
+
     .event-card {
-      background: #ffffff;
+      background: var(--vanilla-light);
       border-left: 5px solid var(--moonstone);
-      border-top: 1px solid #e0e0e0;
-      border-right: 1px solid #e0e0e0;
-      border-bottom: 1px solid #e0e0e0;
-      padding: 1.2rem;
+      padding: 1rem;
       margin-bottom: 1rem;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
     .event-card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
     }
 
-    .event-card h3 {
-      margin: 0 0 0.5rem 0;
-      color: var(--moonstone);
-      font-size: 1.15rem;
+    .event-card h4 {
+      margin: 0 0 0.3rem 0;
+      color: var(--moonstone-dark);
+      font-size: 1rem;
+      font-weight: 800;
     }
 
     .event-card p {
-      margin: 0 0 0.8rem 0;
-      font-size: 0.95rem;
-      line-height: 1.4;
-      color: #4a5568;
+      margin: 0 0 0.5rem 0;
+      font-size: 0.88rem;
+      color: #000000;
     }
 
-    .tag {
+    .event-card .tag {
       display: inline-block;
-      background: var(--moonstone);
-      color: white;
-      padding: 0.25rem 0.7rem;
-      border-radius: 12px;
-      font-size: 0.8rem;
-      font-weight: 500;
+      background: var(--vanilla);
+      color: var(--dark-text);
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    /* Right Interactive Map Canvas */
+    #map {
+      flex: 1;
+      height: 100%;
+      z-index: 1;
     }
   </style>
 </head>
 <body>
 
-<header>
-  <a href="index.html" class="logo-container">
-    <img src="we-are-volunteer-logo.png" alt="Logo" class="logo-img" />
-    <span class="logo-text">Pebbl</span>
-  </a>
-  <nav class="nav-links">
-    <a href="index.html" class="nav-btn">Home</a>
-    <a href="events.html" class="nav-btn active">📍 Events Map</a>
-    <a href="communities.html" class="nav-btn">Clubs</a>
-    <a href="profile.html" class="nav-btn">My Profile</a>
-    <button id="logout-btn" class="logout-btn">Log Out</button>
-  </nav>
-</header>
+  <!-- Header -->
+  <header>
+    <a href="index.html" class="logo-container">
+      <img src="we-are-volunteer-logo.png" alt="Logo" class="logo-img" />
+      <span class="logo-text">Pebbl</span>
+    </a>
+    <nav class="nav-links">
+      <a href="index.html" class="nav-btn">Home</a>
+      <a href="events.html" class="nav-btn active">📍 Events Map</a>
+      <a href="communities.html" class="nav-btn">Clubs</a>
+      <a href="profile.html" class="nav-btn">My Profile</a>
+      <button id="logout-btn" class="logout-btn">Log Out</button>
+    </nav>
+  </header>
 
-  <div class="container">
-    <!-- Events List Sidebar -->
+  <!-- Split Screen Container -->
+  <div class="map-container">
+    <!-- Sidebar -->
     <div id="sidebar">
-      <h3 style="margin-top: 0; color: var(--dark);">📍 Nearby Volunteer Events</h3>
-      <label for="category-filter" style="display: block; margin-bottom: 0.5rem;"><strong>Filter by Interest:</strong></label>
-      <select id="category-filter">
-        <option value="All">All Categories</option>
-        <option value="Environment & Nature">Environment & Nature</option>
-        <option value="Community & Elderly Care">Community & Elderly Care</option>
-        <option value="Sports & Marathons">Sports & Marathons</option>
-        <option value="Education & Mentorship">Education & Mentorship</option>
-      </select>
-
+      <h3>📍 Nearby Volunteer Events</h3>
       <div id="events-container">
-        <p>Loading nearby events on map...</p>
+        <p style="color: #718096; font-size: 0.9rem;">Loading nearby events on map...</p>
       </div>
     </div>
 
-    <!-- Leaflet Map Container -->
+    <!-- Map Area -->
     <div id="map"></div>
   </div>
 
-  <!-- Leaflet JS Library -->
+  <!-- Leaflet Engine -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-  <!-- Application Logic Module -->
   <script type="module" src="events.js"></script>
 </body>
 </html>

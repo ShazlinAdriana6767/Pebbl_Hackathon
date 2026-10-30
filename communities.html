@@ -3,516 +3,599 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pebbl - Volunteer Clubs & Communities</title>
-  <link rel="stylesheet" href="navbar.css">
+  <title>Pebbl - Volunteer Clubs & Activity</title>
   <style>
     :root {
       --vanilla: #FFEBAF;
       --vanilla-light: #FFF8E3;
       --moonstone: #4C9DB0;
       --moonstone-dark: #3B8495;
-      --dark-text: #2C3E50;
+      --dark-text: #000000;
       --card-bg: #FFFFFF;
       --yellow-accent: #FFD56B;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--vanilla); color: var(--dark-text); min-height: 100vh; }
 
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: var(--vanilla);
-      color: var(--dark-text);
-      min-height: 100vh;
-    }
-
-    /* Page Layout */
-    .community-container {
-      max-width: 1100px;
-      margin: 1.5rem auto;
-      padding: 0 1rem;
-      display: grid;
-      grid-template-columns: 1fr 320px;
-      gap: 1.5rem;
-    }
-
-    @media (max-width: 850px) {
-      .community-container { grid-template-columns: 1fr; }
-    }
-
-    /* LEFT MAIN FEED SECTION */
-    .main-feed-section {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .feed-header-bar {
-      background: white;
-      padding: 0.75rem 1.2rem;
-      border-radius: 14px;
+    /* UNIFIED HEADER STYLES */
+    header {
+      background-color: var(--card-bg);
+      padding: 0.8rem 2rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      position: sticky; top: 0; z-index: 100;
+      border-bottom: 3px solid var(--yellow-accent);
+    }
+    .logo-container { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+    .logo-img { height: 38px; width: auto; object-fit: contain; }
+    .logo-text { font-size: 1.5rem; font-weight: 800; color: var(--moonstone); }
+    .nav-links { display: flex; gap: 0.75rem; align-items: center; }
+    .nav-btn, .logout-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      text-decoration: none; font-weight: 700; font-size: 0.88rem;
+      height: 38px; padding: 0 1.1rem; border-radius: 12px; cursor: pointer; border: none;
+    }
+    .nav-btn { background-color: transparent; color: #2C3E50; }
+    .nav-btn:hover { background-color: var(--vanilla-light); color: var(--moonstone-dark); }
+    .nav-btn.active { background-color: var(--moonstone) !important; color: #FFFFFF !important; }
+    .logout-btn { background-color: transparent; color: #E53E3E; border: 1.5px solid #E53E3E; }
+
+    /* Layout */
+    .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; }
+    .card { background: white; border-radius: 16px; padding: 1.25rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 1rem; }
+
+    /* Post Card & Compact Image Styling */
+    .post-card {
+      background: white;
+      border-radius: 16px;
+      padding: 1.25rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      margin-bottom: 1.2rem;
+      width: 100%;
+      position: relative;
+    }
+    
+    .post-img-container {
+      width: 100%;
+      max-width: 280px;
+      aspect-ratio: 1 / 1;
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 0.75rem 0;
+      background-color: #F7FAFC;
+      border: 1px solid #EDF2F7;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+    }
+    .post-img-container:hover {
+      opacity: 0.95;
+    }
+    .post-img-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
-    .feed-tabs {
+    /* Clickable Location Tag */
+    .location-tag {
+      display: inline-block;
+      background: #FFEBAF;
+      padding: 0.35rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: #3B8495;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    .location-tag:hover {
+      background: #FFD56B;
+    }
+
+    /* Simple Action Buttons */
+    .action-btn-group {
       display: flex;
       gap: 0.5rem;
     }
-
-    .feed-tab-btn {
-      background: transparent;
+    .edit-btn, .delete-btn {
+      background: none;
       border: none;
-      padding: 0.5rem 0.9rem;
-      font-weight: 700;
-      font-size: 0.9rem;
-      color: #718096;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .feed-tab-btn.active {
-      background-color: #EBF7FA;
-      color: var(--moonstone-dark);
-    }
-
-    .create-post-btn {
-      background-color: var(--moonstone);
-      color: white;
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 8px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .create-post-btn:hover { background-color: var(--moonstone-dark); }
-
-    /* Feed Post Cards */
-    .club-post-card {
-      background: white;
-      border-radius: 14px;
-      padding: 1.2rem;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.04);
-      margin-bottom: 1rem;
-    }
-
-    .post-header {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      margin-bottom: 0.75rem;
-    }
-
-    .club-badge-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: var(--moonstone);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-    }
-
-    .post-meta { display: flex; flex-direction: column; }
-    .post-title { font-weight: 800; color: var(--dark-text); font-size: 1.05rem; }
-    .post-sub { font-size: 0.8rem; color: #718096; }
-
-    .post-body { font-size: 0.95rem; line-height: 1.5; color: #2D3748; margin-bottom: 0.8rem; }
-
-    .post-footer {
-      display: flex;
-      gap: 0.75rem;
-      align-items: center;
       font-size: 0.85rem;
-      color: #718096;
-    }
-
-    .stat-pill {
-      background: #F7FAFC;
-      padding: 0.3rem 0.6rem;
-      border-radius: 12px;
-      font-weight: 700;
-    }
-
-    /* RIGHT SIDEBAR */
-    .sidebar {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .create-club-btn {
-      width: 100%;
-      background-color: var(--moonstone);
-      color: white;
-      border: none;
-      padding: 0.85rem;
-      border-radius: 14px;
-      font-weight: 800;
-      font-size: 1rem;
       cursor: pointer;
-      box-shadow: 0 4px 10px rgba(76, 157, 176, 0.3);
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
       transition: background 0.2s;
     }
-
-    .create-club-btn:hover { background-color: var(--moonstone-dark); }
-
-    /* Discover / My Clubs Card */
-    .clubs-box {
-      background: white;
-      border-radius: 14px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.04);
-      overflow: hidden;
+    .edit-btn {
+      color: #3B8495;
+    }
+    .edit-btn:hover {
+      background: #EBF8FF;
+    }
+    .delete-btn {
+      color: #E53E3E;
+    }
+    .delete-btn:hover {
+      background: #FFF5F5;
     }
 
-    .clubs-tab-bar {
-      display: flex;
-      border-bottom: 2px solid #EDF2F7;
-    }
+    /* Tabs */
+    .tab-bar { display: flex; gap: 0.5rem; margin-bottom: 1rem; border-bottom: 2px solid #edf2f7; padding-bottom: 0.5rem; }
+    .tab-btn { background: none; border: none; font-weight: 700; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; color: #718096; }
+    .tab-btn.active { background: var(--moonstone); color: white; }
 
-    .clubs-tab {
-      flex: 1;
-      padding: 0.75rem;
-      text-align: center;
-      font-weight: 700;
-      font-size: 0.9rem;
-      background: #F7FAFC;
-      color: #718096;
-      border: none;
-      cursor: pointer;
-    }
+    /* Inputs & Buttons */
+    input[type="text"], textarea, input[type="file"] { width: 100%; padding: 0.75rem; border: 1.5px solid #E2E8F0; border-radius: 10px; margin-bottom: 0.75rem; font-family: inherit; }
+    .btn-primary { background: var(--moonstone); color: white; font-weight: 700; border: none; padding: 0.75rem 1.2rem; border-radius: 10px; cursor: pointer; width: 100%; }
+    .btn-primary:hover { background: var(--moonstone-dark); }
+    
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1000; justify-content: center; align-items: center; }
+    .modal-content { background: white; padding: 1.8rem; border-radius: 16px; width: 90%; max-width: 480px; }
 
-    .clubs-tab.active {
-      background: white;
-      color: var(--moonstone-dark);
-      border-bottom: 3px solid var(--moonstone);
-    }
-
-    .clubs-list {
-      padding: 0.8rem;
-      max-height: 400px;
-      overflow-y: auto;
-    }
-
-    .club-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0.75rem;
-      border-radius: 10px;
-      border-bottom: 1px solid #EDF2F7;
-    }
-
-    .club-item:last-child { border-bottom: none; }
-
-    .club-info { display: flex; flex-direction: column; gap: 0.1rem; }
-    .club-name { font-weight: 800; font-size: 0.9rem; color: var(--dark-text); }
-    .club-desc { font-size: 0.78rem; color: #718096; }
-
-    .join-btn {
-      background-color: #EBF7FA;
-      color: var(--moonstone-dark);
-      border: none;
-      padding: 0.35rem 0.75rem;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 0.8rem;
-      cursor: pointer;
-    }
-
-    .join-btn.joined {
-      background-color: #EDF2F7;
-      color: #A0AEC0;
-    }
-
-    /* Modal for Creating Club */
-    .modal-overlay {
+    /* Full Picture Lightbox Modal */
+    #image-lightbox {
       display: none;
       position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.4);
-      z-index: 1000;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 2000;
       justify-content: center;
       align-items: center;
+      padding: 1rem;
     }
-
-    .modal-card {
-      background: white;
-      padding: 1.8rem;
-      border-radius: 16px;
-      width: 90%;
-      max-width: 450px;
+    #image-lightbox img {
+      max-width: 90%;
+      max-height: 90vh;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      object-fit: contain;
     }
-
-    .input-group { margin-bottom: 1rem; }
-    .input-group label { display: block; font-weight: 700; font-size: 0.85rem; margin-bottom: 0.3rem; }
-    .input-group input, .input-group textarea {
-      width: 100%; padding: 0.7rem; border: 1.5px solid #CBD5E0; border-radius: 8px; font-family: inherit;
+    .lightbox-close {
+      position: absolute;
+      top: 20px;
+      right: 25px;
+      color: white;
+      font-size: 2rem;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
 
-  <!-- Standardized Header Navigation -->
-<header>
-  <a href="index.html" class="logo-container">
-    <img src="we-are-volunteer-logo.png" alt="Logo" class="logo-img" />
-    <span class="logo-text">Pebbl</span>
-  </a>
-  <nav class="nav-links">
-    <a href="index.html" class="nav-btn">Home</a>
-    <a href="events.html" class="nav-btn">📍 Events Map</a>
-    <a href="communities.html" class="nav-btn active">Clubs</a>
-    <a href="profile.html" class="nav-btn">My Profile</a>
-    <button id="logout-btn" class="logout-btn">Log Out</button>
-  </nav>
-</header>
+  <!-- Navigation Header -->
+  <header>
+    <a href="index.html" class="logo-container">
+      <img src="we-are-volunteer-logo.png" alt="Logo" class="logo-img" />
+      <span class="logo-text">Pebbl</span>
+    </a>
+    <nav class="nav-links">
+      <a href="index.html" class="nav-btn">Home</a>
+      <a href="events.html" class="nav-btn">Events Map</a>
+      <a href="communities.html" class="nav-btn active">Clubs</a>
+      <a href="profile.html" class="nav-btn">My Profile</a>
+      <button id="logout-btn" class="logout-btn">Log Out</button>
+    </nav>
+  </header>
 
-  <div class="community-container">
+  <div class="container">
     
-    <!-- LEFT MAIN FEED SECTION -->
-    <div class="main-feed-section">
-      
-      <!-- Top Feed Header & Controls -->
-      <div class="feed-header-bar">
-        <div class="feed-tabs">
-          <button class="feed-tab-btn active" id="tab-feed">📰 Feed</button>
-          <button class="feed-tab-btn" id="tab-trending">📈 Trending</button>
-          <button class="feed-tab-btn" id="tab-forum">💬 Forum</button>
-        </div>
-        <button class="create-post-btn" id="open-post-modal-btn">+ Create Post</button>
+    <!-- Left Column: Feed -->
+    <div>
+      <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="font-size: 1.3rem; color: #000000;">Community Activity</h2>
+        <button class="btn-primary" id="open-post-modal" style="width: auto;">Share Post / Event</button>
       </div>
 
-      <!-- Community Feed List -->
-      <div id="community-feed-list">
-        
-        <div class="club-post-card">
-          <div class="post-header">
-            <div class="club-badge-avatar">🌊</div>
-            <div class="post-meta">
-              <span class="post-title">Beach & River Cleaners</span>
-              <span class="post-sub">Posted by kajang_admin • 2 hours ago</span>
-            </div>
-          </div>
-          <div class="post-body">
-            Calling all volunteers in Selangor! We are organizing a riverbank clean-up drive this Saturday morning. Gloves and trash bags will be provided.
-          </div>
-          <div class="post-footer">
-            <span class="stat-pill">✨ 24 Likes</span>
-            <span class="stat-pill">💬 8 Comments</span>
-            <span class="stat-pill">👁️ 142 Views</span>
-          </div>
-        </div>
-
-        <div class="club-post-card">
-          <div class="post-header">
-            <div class="club-badge-avatar">🍲</div>
-            <div class="post-meta">
-              <span class="post-title">Soup Kitchen Helpers</span>
-              <span class="post-sub">Posted by food_bank • 5 hours ago</span>
-            </div>
-          </div>
-          <div class="post-body">
-            Need 5 extra volunteers to help cook and pack meal boxes tomorrow at 10 AM. Drop a comment if you are free to join us!
-          </div>
-          <div class="post-footer">
-            <span class="stat-pill">✨ 18 Likes</span>
-            <span class="stat-pill">💬 4 Comments</span>
-            <span class="stat-pill">👁️ 95 Views</span>
-          </div>
-        </div>
-
+      <div id="posts-container">
+        <p style="text-align: center; color: #666; margin-top: 2rem;">Loading activity...</p>
       </div>
-
     </div>
 
-    <!-- RIGHT SIDEBAR -->
-    <div class="sidebar">
-      
-      <!-- Create Club Button -->
-      <button class="create-club-btn" id="open-create-club-modal">+ Create a Club</button>
-
-      <!-- Clubs / Communities Box -->
-      <div class="clubs-box">
-        <div class="clubs-tab-bar">
-          <button class="clubs-tab active" id="tab-discover-clubs">Discover</button>
-          <button class="clubs-tab" id="tab-my-clubs">My Clubs</button>
-        </div>
-
-        <div class="clubs-list" id="clubs-list-container">
-          <!-- Clubs items will be rendered dynamically -->
-        </div>
+    <!-- Right Column: Clubs -->
+    <div>
+      <div class="card">
+        <button class="btn-primary" id="open-club-modal">Create a Community</button>
       </div>
 
+      <div class="card">
+        <div class="tab-bar">
+          <button class="tab-btn active" id="tab-discover">Discover</button>
+          <button class="tab-btn" id="tab-myclubs">My Clubs</button>
+        </div>
+        <div id="clubs-container">
+          <p style="text-align: center; color: #666; font-size: 0.9rem;">Loading communities...</p>
+        </div>
+      </div>
     </div>
 
   </div>
 
-  <!-- Create Club Modal -->
-  <div class="modal-overlay" id="create-club-modal">
-    <div class="modal-card">
-      <h3 style="margin-bottom: 1rem;">Create a Volunteer Club</h3>
-      <div class="input-group">
-        <label>Club Name</label>
-        <input type="text" id="new-club-name" placeholder="e.g. Eco Volunteers Selangor">
-      </div>
-      <div class="input-group">
-        <label>Description</label>
-        <textarea id="new-club-desc" rows="3" placeholder="What is your volunteer club about?"></textarea>
-      </div>
+  <!-- Create Community Modal -->
+  <div class="modal-overlay" id="club-modal">
+    <div class="modal-content">
+      <h3 style="margin-bottom: 1rem; color: #000000;">Create a Volunteer Community</h3>
+      <input type="text" id="club-name" placeholder="Community Name (e.g., Beach Cleaners Selangor)" />
+      <textarea id="club-desc" placeholder="What is your club about?" style="height: 90px;"></textarea>
+      <input type="text" id="club-category" placeholder="Category (e.g., Environment, Education)" />
       <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
-        <button id="close-club-modal-btn" style="padding: 0.6rem 1rem; border: none; border-radius: 8px; cursor: pointer;">Cancel</button>
-        <button id="submit-club-btn" style="padding: 0.6rem 1rem; background: var(--moonstone); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Create</button>
+        <button id="close-club-modal" style="padding: 0.6rem 1rem; border-radius: 8px; border: none; cursor: pointer;">Cancel</button>
+        <button class="btn-primary" id="submit-club-btn" style="width: auto;">Create Club</button>
       </div>
     </div>
   </div>
 
+  <!-- Share / Edit Activity Modal -->
+  <div class="modal-overlay" id="post-modal">
+    <div class="modal-content">
+      <h3 id="modal-title" style="margin-bottom: 1rem; color: #000000;">Share an Activity or Event</h3>
+      <textarea id="post-content" placeholder="Share updates, stories, or event details..." style="height: 90px;"></textarea>
+      
+      <label style="font-size: 0.85rem; color: #000000; display: block; margin-bottom: 0.3rem;">Attach Photo</label>
+      <input type="file" id="post-image" accept="image/*" />
+
+      <input type="text" id="post-location" placeholder="Event Location (e.g., German-Malaysian Institute)" />
+      <p style="font-size: 0.75rem; color: #718096; margin-bottom: 1rem;">Adding a location will automatically post or update this on the Events Map.</p>
+      
+      <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+        <button id="close-post-modal" style="padding: 0.6rem 1rem; border-radius: 8px; border: none; cursor: pointer;">Cancel</button>
+        <button class="btn-primary" id="submit-post-btn" style="width: auto;">Publish</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Full Picture View Modal (Lightbox) -->
+  <div id="image-lightbox">
+    <span class="lightbox-close" id="close-lightbox">&times;</span>
+    <img id="lightbox-full-img" src="" alt="Full size preview" />
+  </div>
+
+  <!-- JavaScript Section -->
   <script type="module">
     import { auth, db } from "./firebase.js";
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { 
-      collection, 
-      addDoc, 
-      query, 
-      onSnapshot, 
-      serverTimestamp,
-      doc,
-      updateDoc,
-      arrayUnion,
-      arrayRemove
-    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-    const logoutBtn = document.getElementById("logout-btn");
-    const clubsListContainer = document.getElementById("clubs-list-container");
-    const tabDiscover = document.getElementById("tab-discover-clubs");
-    const tabMyClubs = document.getElementById("tab-my-clubs");
+    import { collection, addDoc, deleteDoc, doc, getDoc, updateDoc, query, orderBy, onSnapshot, serverTimestamp, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     let currentUser = null;
-    let currentClubs = [];
-    let currentTab = "discover";
+    let currentUsername = "Adriana";
+    let editingPostId = null;
+    let editingEventId = null;
+    let editingExistingImage = null;
 
-    // 1. Auth Listener
-    onAuthStateChanged(auth, (user) => {
+    // Modals & Lightbox
+    const clubModal = document.getElementById("club-modal");
+    const postModal = document.getElementById("post-modal");
+    const lightbox = document.getElementById("image-lightbox");
+    const lightboxImg = document.getElementById("lightbox-full-img");
+
+    document.getElementById("open-club-modal").onclick = () => clubModal.style.display = "flex";
+    document.getElementById("close-club-modal").onclick = () => clubModal.style.display = "none";
+    
+    document.getElementById("open-post-modal").onclick = () => {
+      resetPostModal();
+      postModal.style.display = "flex";
+    };
+    document.getElementById("close-post-modal").onclick = () => {
+      postModal.style.display = "none";
+      resetPostModal();
+    };
+    
+    document.getElementById("close-lightbox").onclick = () => lightbox.style.display = "none";
+    lightbox.onclick = (e) => { if (e.target === lightbox) lightbox.style.display = "none"; };
+
+    function resetPostModal() {
+      editingPostId = null;
+      editingEventId = null;
+      editingExistingImage = null;
+      document.getElementById("modal-title").textContent = "Share an Activity or Event";
+      document.getElementById("submit-post-btn").textContent = "Publish";
+      document.getElementById("post-content").value = "";
+      document.getElementById("post-location").value = "";
+      document.getElementById("post-image").value = "";
+    }
+
+    onAuthStateChanged(auth, async (user) => {
       if (user) {
         currentUser = user;
-        listenToClubs();
+        
+        try {
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          if (userDoc.exists() && userDoc.data().username) {
+            currentUsername = userDoc.data().username;
+          } else if (user.displayName) {
+            currentUsername = user.displayName;
+          } else {
+            currentUsername = "Adriana";
+          }
+        } catch (e) {
+          currentUsername = "Adriana";
+        }
+
+        loadPosts();
+        loadCommunities("discover");
       } else {
         window.location.href = "login.html";
       }
     });
 
-    // 2. Fetch Communities from Firestore
-    function listenToClubs() {
-      const q = query(collection(db, "communities"));
-      onSnapshot(q, (snapshot) => {
-        currentClubs = [];
-        snapshot.forEach((docSnap) => {
-          currentClubs.push({ id: docSnap.id, ...docSnap.data() });
-        });
-        renderClubsList();
+    // Helper: Convert File to Base64
+    function convertFileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
       });
     }
 
-    // 3. Render Discover vs My Clubs
-    function renderClubsList() {
-      clubsListContainer.innerHTML = "";
-
-      let filteredClubs = currentClubs;
-
-      if (currentTab === "my-clubs") {
-        filteredClubs = currentClubs.filter(club => 
-          club.members && club.members.includes(currentUser.uid)
-        );
-      }
-
-      if (filteredClubs.length === 0) {
-        clubsListContainer.innerHTML = `<p style="font-size: 0.85rem; color: #718096; text-align: center; padding: 1rem;">No clubs found.</p>`;
-        return;
-      }
-
-      filteredClubs.forEach((club) => {
-        const isJoined = club.members && club.members.includes(currentUser.uid);
-
-        const item = document.createElement("div");
-        item.className = "club-item";
-        item.innerHTML = `
-          <div class="club-info">
-            <span class="club-name">${escapeHTML(club.name)}</span>
-            <span class="club-desc">${escapeHTML(club.description || "Volunteer group")}</span>
-          </div>
-          <button class="join-btn ${isJoined ? 'joined' : ''}" data-id="${club.id}">
-            ${isJoined ? 'Joined' : 'Join'}
-          </button>
-        `;
-
-        // Toggle Join/Leave
-        item.querySelector(".join-btn").addEventListener("click", async (e) => {
-          const clubRef = doc(db, "communities", club.id);
-          if (isJoined) {
-            await updateDoc(clubRef, { members: arrayRemove(currentUser.uid) });
-          } else {
-            await updateDoc(clubRef, { members: arrayUnion(currentUser.uid) });
-          }
-        });
-
-        clubsListContainer.appendChild(item);
-      });
-    }
-
-    // Tab Switching Handlers
-    tabDiscover.addEventListener("click", () => {
-      currentTab = "discover";
-      tabDiscover.classList.add("active");
-      tabMyClubs.classList.remove("active");
-      renderClubsList();
-    });
-
-    tabMyClubs.addEventListener("click", () => {
-      currentTab = "my-clubs";
-      tabMyClubs.classList.add("active");
-      tabDiscover.classList.remove("active");
-      renderClubsList();
-    });
-
-    // Create Club Modal Handlers
-    const modal = document.getElementById("create-club-modal");
-    document.getElementById("open-create-club-modal").addEventListener("click", () => modal.style.display = "flex");
-    document.getElementById("close-club-modal-btn").addEventListener("click", () => modal.style.display = "none");
-
+    // Create Community
     document.getElementById("submit-club-btn").addEventListener("click", async () => {
-      const name = document.getElementById("new-club-name").value.trim();
-      const desc = document.getElementById("new-club-desc").value.trim();
+      const name = document.getElementById("club-name").value.trim();
+      const desc = document.getElementById("club-desc").value.trim();
+      const cat = document.getElementById("club-category").value.trim();
 
-      if (!name) return alert("Please enter a club name.");
+      if (!name) return alert("Please enter a community name");
 
       await addDoc(collection(db, "communities"), {
-        name: name,
-        description: desc,
-        createdBy: currentUser.uid,
+        name, description: desc, category: cat || "General",
         members: [currentUser.uid],
+        createdBy: currentUser.uid,
         createdAt: serverTimestamp()
       });
 
-      modal.style.display = "none";
-      document.getElementById("new-club-name").value = "";
-      document.getElementById("new-club-desc").value = "";
+      clubModal.style.display = "none";
+      document.getElementById("club-name").value = "";
+      document.getElementById("club-desc").value = "";
     });
 
-    // Logout Handler
-    logoutBtn.addEventListener("click", () => {
-      signOut(auth).then(() => window.location.href = "login.html");
+    // Load Communities
+    function loadCommunities(filter = "discover") {
+      const container = document.getElementById("clubs-container");
+      onSnapshot(collection(db, "communities"), (snapshot) => {
+        container.innerHTML = "";
+        if (snapshot.empty) { container.innerHTML = "<p style='font-size: 0.88rem; color: #718096;'>No communities yet.</p>"; return; }
+
+        snapshot.forEach((docSnap) => {
+          const club = docSnap.data();
+          const isMember = club.members && club.members.includes(currentUser.uid);
+
+          if (filter === "myclubs" && !isMember) return;
+
+          const div = document.createElement("div");
+          div.style.cssText = "padding: 0.75rem 0; border-bottom: 1px solid #edf2f7; display: flex; justify-content: space-between; align-items: center;";
+          div.innerHTML = `
+            <div>
+              <strong style="display: block; font-size: 0.95rem; color: #000000; font-weight: normal;">${club.name}</strong>
+              <span style="font-size: 0.75rem; color: #718096;">${club.category} • ${(club.members || []).length} members</span>
+            </div>
+            <button id="btn-${docSnap.id}" style="padding: 0.4rem 0.8rem; border-radius: 8px; border: none; cursor: pointer; background: ${isMember ? "#EDF2F7" : "var(--moonstone)"}; color: ${isMember ? "#4A5568" : "white"};">
+              ${isMember ? "Joined" : "Join"}
+            </button>
+          `;
+          container.appendChild(div);
+
+          document.getElementById(`btn-${docSnap.id}`).onclick = async () => {
+            const clubRef = doc(db, "communities", docSnap.id);
+            await updateDoc(clubRef, {
+              members: isMember ? arrayRemove(currentUser.uid) : arrayUnion(currentUser.uid)
+            });
+          };
+        });
+      });
+    }
+
+    // Publish or Update Post
+    document.getElementById("submit-post-btn").addEventListener("click", async () => {
+      const content = document.getElementById("post-content").value.trim();
+      const locationName = document.getElementById("post-location").value.trim();
+      const imageFile = document.getElementById("post-image").files[0];
+
+      if (!content && !imageFile && !editingExistingImage) return alert("Please enter text or attach an image");
+
+      let imageBase64 = editingExistingImage || null;
+      if (imageFile) {
+        imageBase64 = await convertFileToBase64(imageFile);
+      }
+
+      if (editingPostId) {
+        // UPDATE EXISTING POST
+        await updateDoc(doc(db, "posts", editingPostId), {
+          content: content,
+          image: imageBase64,
+          imageUrl: imageBase64,
+          location: locationName || null,
+          updatedAt: serverTimestamp()
+        });
+
+        // Update corresponding event if present or create new one if location added
+        if (editingEventId && locationName) {
+          await updateDoc(doc(db, "events", editingEventId), {
+            title: content.substring(0, 40) || "Volunteer Event",
+            description: content,
+            locationName: locationName,
+            image: imageBase64
+          });
+        } else if (!editingEventId && locationName) {
+          const newEventRef = await addDoc(collection(db, "events"), {
+            title: content.substring(0, 40) || "Volunteer Event",
+            description: content,
+            locationName: locationName,
+            image: imageBase64,
+            postedBy: currentUsername,
+            authorId: currentUser.uid,
+            createdAt: serverTimestamp()
+          });
+          await updateDoc(doc(db, "posts", editingPostId), { eventId: newEventRef.id });
+        }
+      } else {
+        // CREATE NEW POST
+        let createdEventId = null;
+        if (locationName) {
+          const eventRef = await addDoc(collection(db, "events"), {
+            title: content.substring(0, 40) || "Volunteer Event",
+            description: content,
+            locationName: locationName,
+            image: imageBase64,
+            postedBy: currentUsername,
+            authorId: currentUser.uid,
+            createdAt: serverTimestamp()
+          });
+          createdEventId = eventRef.id;
+        }
+
+        await addDoc(collection(db, "posts"), {
+          content: content,
+          image: imageBase64,
+          imageUrl: imageBase64,
+          location: locationName || null,
+          eventId: createdEventId,
+          authorUsername: currentUsername,
+          authorEmail: currentUser.email,
+          authorId: currentUser.uid,
+          createdAt: serverTimestamp()
+        });
+      }
+
+      postModal.style.display = "none";
+      resetPostModal();
     });
+
+    // Load Posts Feed (Includes Update & Delete Actions)
+    function loadPosts() {
+      const postsContainer = document.getElementById("posts-container");
+      const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+
+      onSnapshot(q, (snapshot) => {
+        postsContainer.innerHTML = "";
+        
+        if (snapshot.empty) {
+          postsContainer.innerHTML = "<p style='text-align: center; color: #718096;'>No activity shared yet. Be the first to post!</p>";
+          return;
+        }
+
+        snapshot.forEach((docSnap) => {
+          const post = docSnap.data();
+          const postId = docSnap.id;
+          const card = document.createElement("div");
+          card.className = "post-card";
+
+          // Automatic name normalization
+          let username = post.authorUsername || post.authorEmail || "Adriana";
+          if (username.includes("@student.gmi.edu.my") || username.includes("noorshazlin")) {
+            username = "Adriana";
+          } else if (username.includes("@")) {
+            username = username.split("@")[0];
+          }
+
+          // Image display
+          const imageSrc = post.image || post.imageUrl;
+          let imageHTML = "";
+          if (imageSrc) {
+            imageHTML = `
+              <div class="post-img-container" data-img="${imageSrc}">
+                <img src="${imageSrc}" alt="Uploaded photo" />
+              </div>
+            `;
+          }
+
+          // Location badge
+          let locationHTML = "";
+          if (post.location) {
+            locationHTML = `
+              <div style="margin-top: 0.6rem;">
+                <a href="events.html" class="location-tag">Location: ${post.location}</a>
+              </div>
+            `;
+          }
+
+          // Action buttons (Edit & Delete)
+          const isAuthor = !post.authorId || post.authorId === currentUser.uid || post.authorEmail === currentUser.email;
+          let actionBtnsHTML = "";
+          if (isAuthor) {
+            actionBtnsHTML = `
+              <div class="action-btn-group">
+                <button class="edit-btn" data-postid="${postId}" data-eventid="${post.eventId || ''}" data-content="${escapeHTML(post.content || '')}" data-location="${escapeHTML(post.location || '')}" data-image="${post.image || post.imageUrl || ''}">Edit</button>
+                <button class="delete-btn" data-postid="${postId}" data-eventid="${post.eventId || ''}">Delete</button>
+              </div>
+            `;
+          }
+
+          card.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+              <span style="font-size: 0.95rem; color: #000000;">${username}</span>
+              ${actionBtnsHTML}
+            </div>
+            <p style="font-size: 0.95rem; color: #000000; line-height: 1.4; margin-bottom: 0.3rem;">${post.content || ""}</p>
+            ${imageHTML}
+            ${locationHTML}
+          `;
+
+          postsContainer.appendChild(card);
+        });
+
+        // Edit button listeners
+        document.querySelectorAll(".edit-btn").forEach(btn => {
+          btn.addEventListener("click", (e) => {
+            editingPostId = e.target.getAttribute("data-postid");
+            editingEventId = e.target.getAttribute("data-eventid");
+            editingExistingImage = e.target.getAttribute("data-image");
+
+            document.getElementById("modal-title").textContent = "Edit Post / Event";
+            document.getElementById("submit-post-btn").textContent = "Update";
+            document.getElementById("post-content").value = e.target.getAttribute("data-content");
+            document.getElementById("post-location").value = e.target.getAttribute("data-location");
+            postModal.style.display = "flex";
+          });
+        });
+
+        // Delete button listeners
+        document.querySelectorAll(".delete-btn").forEach(btn => {
+          btn.addEventListener("click", async (e) => {
+            if (confirm("Are you sure you want to delete this post?")) {
+              const pId = e.target.getAttribute("data-postid");
+              const eId = e.target.getAttribute("data-eventid");
+
+              if (pId) await deleteDoc(doc(db, "posts", pId));
+              if (eId) await deleteDoc(doc(db, "events", eId));
+            }
+          });
+        });
+
+        // Lightbox listeners
+        document.querySelectorAll(".post-img-container").forEach(container => {
+          container.addEventListener("click", () => {
+            const imgSrc = container.getAttribute("data-img");
+            lightboxImg.src = imgSrc;
+            lightbox.style.display = "flex";
+          });
+        });
+
+      });
+    }
 
     function escapeHTML(str) {
-      return String(str).replace(/[&<>'"]/g, 
+      return String(str || "").replace(/[&<>'"]/g, 
         tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
       );
     }
+
+    // Community tab toggle
+    document.getElementById("tab-discover").onclick = (e) => {
+      document.querySelectorAll("#tab-discover, #tab-myclubs").forEach(b => b.classList.remove("active"));
+      e.target.classList.add("active");
+      loadCommunities("discover");
+    };
+    document.getElementById("tab-myclubs").onclick = (e) => {
+      document.querySelectorAll("#tab-discover, #tab-myclubs").forEach(b => b.classList.remove("active"));
+      e.target.classList.add("active");
+      loadCommunities("myclubs");
+    };
+
+    document.getElementById("logout-btn").onclick = () => signOut(auth).then(() => window.location.href = "login.html");
   </script>
 </body>
 </html>
