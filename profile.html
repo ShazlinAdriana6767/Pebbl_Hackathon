@@ -241,6 +241,25 @@
       border-radius: 10px;
       margin: 0.75rem 0;
     }
+
+    /* Added: profile editing, chips, locked badges */
+    .user-meta { font-size: 0.8rem; color: #718096; margin-top: 0.3rem; }
+    .about-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; }
+    .chip {
+      display: inline-block; border: 1.5px solid #EDF2F7; background: #FAFAFA; color: var(--dark-text);
+      border-radius: 999px; padding: 0.3rem 0.8rem; font-size: 0.82rem; margin: 0 0.4rem 0.4rem 0; cursor: pointer;
+    }
+    .chip.selected { background: var(--moonstone); border-color: var(--moonstone); color: white; }
+    .badge-card.locked { opacity: 0.5; filter: grayscale(1); }
+    .badge-progress { font-size: 0.78rem; font-weight: 700; color: var(--moonstone-dark); margin-top: 0.5rem; }
+    .unlike-btn { border: none; background: #EDF2F7; color: #4A5568; border-radius: 8px; padding: 0.25rem 0.6rem; font-size: 0.78rem; cursor: pointer; }
+    #edit-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
+    .modal-box { background: white; border-radius: 16px; padding: 1.6rem; width: 100%; max-width: 460px; max-height: 90vh; overflow-y: auto; }
+    .modal-box label { display: block; font-size: 0.8rem; font-weight: 700; margin: 0.9rem 0 0.3rem; color: #4A5568; }
+    .modal-box input { width: 100%; padding: 0.6rem 0.7rem; border: 1.5px solid #E2E8F0; border-radius: 10px; font-size: 0.95rem; }
+    .modal-box select { width: 100%; padding: 0.6rem 0.7rem; border: 1.5px solid #E2E8F0; border-radius: 10px; font-size: 0.95rem; background: white; }
+    .modal-box input:disabled { background: #F7FAFC; color: #A0AEC0; }
+    .modal-hint { font-size: 0.75rem; color: #718096; margin-top: 0.3rem; }
   </style>
 </head>
 <body>
@@ -270,6 +289,7 @@
         <div id="user-avatar" class="avatar-circle">P</div>
         <div id="user-name" class="user-name">Loading...</div>
         <div id="user-pronouns" class="user-pronouns">Volunteer Member</div>
+        <div id="user-meta" class="user-meta"></div>
         <button id="customize-profile-btn" class="customize-btn">⚙️ Customize Profile</button>
       </div>
 
@@ -279,7 +299,7 @@
           <div class="stat-icon">📅</div>
           <div class="stat-details">
             <span class="stat-label">Member Since</span>
-            <span id="stat-member-since" class="stat-value">Oct 2026</span>
+            <span id="stat-member-since" class="stat-value">—</span>
           </div>
         </div>
 
@@ -295,7 +315,7 @@
           <div class="stat-icon">🏆</div>
           <div class="stat-details">
             <span class="stat-label">Community Badges</span>
-            <span id="stat-badges-count" class="stat-value">3 Earned</span>
+            <span id="stat-badges-count" class="stat-value">—</span>
           </div>
         </div>
       </div>
@@ -309,6 +329,7 @@
       <div class="tab-nav">
         <button class="tab-btn active" id="btn-tab-profile">📇 Profile</button>
         <button class="tab-btn" id="btn-tab-posts">📝 Posts</button>
+        <button class="tab-btn" id="btn-tab-favorites">❤️ Favourites</button>
         <button class="tab-btn" id="btn-tab-badges">🏆 Badges</button>
       </div>
 
@@ -318,7 +339,7 @@
         <!-- Quick Action Row (Favorites, Add New, Badges) -->
         <div class="quick-actions-row">
           <div class="action-circle-item" id="quick-favorites">
-            <div class="circle-btn favorites">♥</div>
+            <div class="circle-btn favorites">❤️</div>
             <span class="action-label">Favorites</span>
           </div>
           <div class="action-circle-item" id="quick-add-post">
@@ -333,10 +354,7 @@
 
         <!-- Dynamic View Container -->
         <div id="tab-content-view">
-          <h3 style="margin-bottom: 1rem;">Recent Activity & Posts</h3>
-          <div id="user-posts-container">
-            <p style="color: #666;">Loading user posts...</p>
-          </div>
+          <p style="color: #666;">Loading your profile...</p>
         </div>
 
       </div>
@@ -345,195 +363,45 @@
 
   </div>
 
-  <script type="module">
-    import { auth, db } from "./firebase.js";
-    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { 
-      collection, 
-      query, 
-      where, 
-      orderBy, 
-      onSnapshot, 
-      doc, 
-      getDoc 
-    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  <!-- Edit Profile Modal -->
+  <div id="edit-modal">
+    <div class="modal-box">
+      <h3>Customize Profile</h3>
+      <form id="edit-form">
+        <label for="edit-name">Username</label>
+        <input type="text" id="edit-name" maxlength="30" required />
 
-    const userNameEl = document.getElementById("user-name");
-    const userAvatarEl = document.getElementById("user-avatar");
-    const statPostsCountEl = document.getElementById("stat-posts-count");
-    const userPostsContainer = document.getElementById("user-posts-container");
-    const tabContentView = document.getElementById("tab-content-view");
-    const logoutBtn = document.getElementById("logout-btn");
+        <label for="edit-title">Title</label>
+        <input type="text" id="edit-title" maxlength="40" placeholder="e.g. Creator of Bangi Volunteering" />
+        <div id="edit-title-hint" class="modal-hint"></div>
 
-    let currentUserId = null;
+        <label for="edit-age">Age</label>
+        <input type="number" id="edit-age" min="1" max="120" />
 
-    // 1. Check Auth & Load User Profile Details
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        currentUserId = user.uid;
-        let displayName = user.email.split("@")[0];
+        <label for="edit-gender">Gender</label>
+        <select id="edit-gender">
+          <option value="">Not set</option>
+          <option value="Female">Female</option>
+          <option value="Male">Male</option>
+          <option value="Non-binary">Non-binary</option>
+          <option value="Prefer not to say">Prefer not to say</option>
+        </select>
 
-        try {
-          const userDoc = await getDoc(doc(db, "users", user.uid));
-          if (userDoc.exists() && userDoc.data().name) {
-            displayName = userDoc.data().name;
-          }
-        } catch (err) {
-          console.log("Error loading user profile:", err);
-        }
+        <label for="edit-location">Based in</label>
+        <input type="text" id="edit-location" maxlength="60" placeholder="e.g. Kajang, Selangor" />
 
-        userNameEl.textContent = displayName;
-        userAvatarEl.textContent = displayName.charAt(0).toUpperCase();
+        <label>Interests</label>
+        <div id="edit-interests"></div>
 
-        renderPostsView();
-      } else {
-        window.location.href = "login.html";
-      }
-    });
-
-    // 2. Render Posts View
-    function renderPostsView() {
-      tabContentView.innerHTML = `
-        <h3 style="margin-bottom: 1rem;">My Volunteer Posts</h3>
-        <div id="user-posts-container"><p style="color: #666;">Loading posts...</p></div>
-      `;
-      loadUserPosts(currentUserId);
-    }
-
-    // 3. Load Firestore Posts for Current User
-    function loadUserPosts(uid) {
-      const container = document.getElementById("user-posts-container");
-      if (!container) return;
-
-      const q = query(
-        collection(db, "posts"),
-        where("authorId", "==", uid),
-        orderBy("createdAt", "desc")
-      );
-
-      onSnapshot(q, (snapshot) => {
-        container.innerHTML = "";
-        statPostsCountEl.textContent = snapshot.size;
-
-        if (snapshot.empty) {
-          container.innerHTML = `<p style="color: #666;">You haven't published any volunteer posts yet!</p>`;
-          return;
-        }
-
-        snapshot.forEach((docSnap) => {
-          const post = docSnap.data();
-          const postDate = post.createdAt ? new Date(post.createdAt.toDate()).toLocaleDateString() : "Just now";
-
-          const card = document.createElement("div");
-          card.className = "post-card";
-          card.innerHTML = `
-            <div class="post-header">
-              <span class="post-author">🟢 ${escapeHTML(post.authorEmail || "Volunteer")}</span>
-              <span class="post-time">${postDate}</span>
-            </div>
-            <div style="font-size: 0.98rem; line-height: 1.4;">${escapeHTML(post.content)}</div>
-
-            ${post.imageUrl ? `
-              <img src="${post.imageUrl}" alt="Uploaded Post Image" class="post-image-preview">
-            ` : ""}
-
-            <div style="margin-top: 0.75rem;">
-              ${post.location ? `<span style="background: var(--vanilla); padding: 0.25rem 0.6rem; border-radius: 12px; font-size: 0.8rem; font-weight: 700;">📍 ${escapeHTML(post.location)}</span>` : ""}
-            </div>
-          `;
-          container.appendChild(card);
-        });
-      });
-    }
-
-    // 4. Render Badges View (Community Awarded Badges)
-    function renderBadgesView() {
-      tabContentView.innerHTML = `
-        <h3 style="margin-bottom: 0.5rem;">Community Awarded Badges</h3>
-        <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1.2rem;">Earn badges by participating in local volunteer events & communities.</p>
-        
-        <div class="badges-grid">
-          <div class="badge-card">
-            <div class="badge-icon">🏖️</div>
-            <div class="badge-title">Coast Cleanup Hero</div>
-            <div class="badge-desc">Awarded by Kajang River Cleaners</div>
-          </div>
-          <div class="badge-card">
-            <div class="badge-icon">🌳</div>
-            <div class="badge-title">Tree Planter</div>
-            <div class="badge-desc">Awarded by Eco Volunteers</div>
-          </div>
-          <div class="badge-card">
-            <div class="badge-icon">🍲</div>
-            <div class="badge-title">Community Kitchen Helper</div>
-            <div class="badge-desc">Awarded by Food Bank Club</div>
-          </div>
+        <div id="edit-status" style="font-size: 0.85rem; margin-top: 0.8rem;"></div>
+        <div style="display: flex; gap: 0.6rem; margin-top: 1rem;">
+          <button type="submit" id="edit-save-btn" class="customize-btn" style="margin-top: 0;">Save Changes</button>
+          <button type="button" id="close-edit-modal" class="customize-btn" style="margin-top: 0; background: #EDF2F7; color: #4A5568;">Cancel</button>
         </div>
-      `;
-    }
+      </form>
+    </div>
+  </div>
 
-    // 5. Render Favorites View
-    function renderFavoritesView() {
-      tabContentView.innerHTML = `
-        <h3 style="margin-bottom: 0.5rem;">Saved Favorites</h3>
-        <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1.2rem;">Postings and volunteer committees you saved for quick access.</p>
-        <div class="post-card">
-          <div class="post-header">
-            <span class="post-author">⭐ Kajang River Cleanup Drive</span>
-            <span class="post-time">Community Club</span>
-          </div>
-          <p style="font-size: 0.9rem; color: #4A5568;">Join us this Saturday for our weekly river clean-up!</p>
-        </div>
-      `;
-    }
-
-    // Tab Button Handlers
-    document.getElementById("btn-tab-profile").addEventListener("click", () => {
-      setActiveTab("btn-tab-profile");
-      renderPostsView();
-    });
-
-    document.getElementById("btn-tab-posts").addEventListener("click", () => {
-      setActiveTab("btn-tab-posts");
-      renderPostsView();
-    });
-
-    document.getElementById("btn-tab-badges").addEventListener("click", () => {
-      setActiveTab("btn-tab-badges");
-      renderBadgesView();
-    });
-
-    // Quick Circle Click Handlers
-    document.getElementById("quick-favorites").addEventListener("click", () => {
-      renderFavoritesView();
-    });
-
-    document.getElementById("quick-add-post").addEventListener("click", () => {
-      window.location.href = "index.html";
-    });
-
-    document.getElementById("quick-view-badges").addEventListener("click", () => {
-      setActiveTab("btn-tab-badges");
-      renderBadgesView();
-    });
-
-    function setActiveTab(tabId) {
-      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-      document.getElementById(tabId).classList.add("active");
-    }
-
-    // Logout Handler
-    logoutBtn.addEventListener("click", () => {
-      signOut(auth).then(() => {
-        window.location.href = "login.html";
-      });
-    });
-
-    function escapeHTML(str) {
-      return String(str).replace(/[&<>'"]/g, 
-        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
-      );
-    }
-  </script>
+  <script type="module" src="profile.js"></script>
 </body>
 </html>
