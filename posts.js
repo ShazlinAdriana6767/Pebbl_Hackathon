@@ -23,10 +23,16 @@ let base64ImageString = "";
 postImageInput.addEventListener("change", (e) => {
   const file = e.target.files[0];
   if (file) {
-    // Check file size (keep under 1MB for Firestore performance)
-    if (file.size > 1024 * 1024) {
+    if (!file.type.startsWith("image/")) {
       statusMsg.style.color = "#E53E3E";
-      statusMsg.textContent = "⚠️ Image is too large! Please pick an image under 1MB.";
+      statusMsg.textContent = "Please select a valid image file.";
+      postImageInput.value = "";
+      return;
+    }
+    // Leave room for Firestore document metadata and text.
+    if (file.size > 700 * 1024) {
+      statusMsg.style.color = "#E53E3E";
+      statusMsg.textContent = "⚠️ Image is too large! Please pick an image under 700 KB.";
       postImageInput.value = "";
       return;
     }
@@ -123,7 +129,7 @@ export function loadPosts() {
         <!-- Render image if present -->
         ${data.imageUrl ? `
           <div style="margin-bottom: 0.75rem;">
-            <img src="${data.imageUrl}" alt="Volunteer Post Image" style="width: 100%; max-height: 350px; object-fit: cover; border-radius: 8px;">
+            <img src="${escapeHTML(data.imageUrl)}" alt="Volunteer Post Image" style="width: 100%; max-height: 350px; object-fit: cover; border-radius: 8px;">
           </div>
         ` : ''}
 

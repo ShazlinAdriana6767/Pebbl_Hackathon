@@ -1,0 +1,4 @@
+[build]
+  publish = "."
+
+# Static HTML/JS app: no build command required.

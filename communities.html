@@ -169,12 +169,12 @@
 
   <!-- Navigation Header -->
   <header>
-    <a href="index.html" class="logo-container">
+    <a href="app-home.html" class="logo-container">
       <img src="we-are-volunteer-logo.png" alt="Logo" class="logo-img" />
       <span class="logo-text">Pebbl</span>
     </a>
     <nav class="nav-links">
-      <a href="index.html" class="nav-btn">Home</a>
+      <a href="app-home.html" class="nav-btn">Home</a>
       <a href="events.html" class="nav-btn">Events Map</a>
       <a href="communities.html" class="nav-btn active">Clubs</a>
       <a href="profile.html" class="nav-btn">My Profile</a>
@@ -261,10 +261,11 @@
     import { collection, addDoc, deleteDoc, doc, getDoc, updateDoc, query, orderBy, onSnapshot, serverTimestamp, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     let currentUser = null;
-    let currentUsername = "Adriana";
+    let currentUsername = "Volunteer";
     let editingPostId = null;
     let editingEventId = null;
     let editingExistingImage = null;
+    let unsubscribeCommunities = null;
 
     // Modals & Lightbox
     const clubModal = document.getElementById("club-modal");
@@ -309,10 +310,10 @@
           } else if (user.displayName) {
             currentUsername = user.displayName;
           } else {
-            currentUsername = "Adriana";
+            currentUsername = user.email ? user.email.split("@")[0] : "Volunteer";
           }
         } catch (e) {
-          currentUsername = "Adriana";
+          currentUsername = user.email ? user.email.split("@")[0] : "Volunteer";
         }
 
         loadPosts();
@@ -355,7 +356,8 @@
     // Load Communities
     function loadCommunities(filter = "discover") {
       const container = document.getElementById("clubs-container");
-      onSnapshot(collection(db, "communities"), (snapshot) => {
+      if (unsubscribeCommunities) unsubscribeCommunities();
+      unsubscribeCommunities = onSnapshot(collection(db, "communities"), (snapshot) => {
         container.innerHTML = "";
         if (snapshot.empty) { container.innerHTML = "<p style='font-size: 0.88rem; color: #718096;'>No communities yet.</p>"; return; }
 
@@ -369,8 +371,8 @@
           div.style.cssText = "padding: 0.75rem 0; border-bottom: 1px solid #edf2f7; display: flex; justify-content: space-between; align-items: center;";
           div.innerHTML = `
             <div>
-              <strong style="display: block; font-size: 0.95rem; color: #000000; font-weight: normal;">${club.name}</strong>
-              <span style="font-size: 0.75rem; color: #718096;">${club.category} • ${(club.members || []).length} members</span>
+              <strong style="display: block; font-size: 0.95rem; color: #000000; font-weight: normal;">${escapeHTML(club.name || "Community")}</strong>
+              <span style="font-size: 0.75rem; color: #718096;">${escapeHTML(club.category || "General")} • ${(club.members || []).length} members</span>
             </div>
             <button id="btn-${docSnap.id}" style="padding: 0.4rem 0.8rem; border-radius: 8px; border: none; cursor: pointer; background: ${isMember ? "#EDF2F7" : "var(--moonstone)"}; color: ${isMember ? "#4A5568" : "white"};">
               ${isMember ? "Joined" : "Join"}
@@ -398,6 +400,14 @@
 
       let imageBase64 = editingExistingImage || null;
       if (imageFile) {
+        if (!imageFile.type.startsWith("image/")) {
+          alert("Please select a valid image file.");
+          return;
+        }
+        if (imageFile.size > 700 * 1024) {
+          alert("Please choose an image smaller than 700 KB so it can be saved safely.");
+          return;
+        }
         imageBase64 = await convertFileToBase64(imageFile);
       }
 
@@ -484,20 +494,16 @@
           card.className = "post-card";
 
           // Automatic name normalization
-          let username = post.authorUsername || post.authorEmail || "Adriana";
-          if (username.includes("@student.gmi.edu.my") || username.includes("noorshazlin")) {
-            username = "Adriana";
-          } else if (username.includes("@")) {
-            username = username.split("@")[0];
-          }
+          let username = post.authorUsername || post.authorEmail || "Volunteer";
+          if (username.includes("@")) username = username.split("@")[0];
 
           // Image display
           const imageSrc = post.image || post.imageUrl;
           let imageHTML = "";
           if (imageSrc) {
             imageHTML = `
-              <div class="post-img-container" data-img="${imageSrc}">
-                <img src="${imageSrc}" alt="Uploaded photo" />
+              <div class="post-img-container" data-img="${escapeHTML(imageSrc)}">
+                <img src="${escapeHTML(imageSrc)}" alt="Uploaded photo" loading="lazy" />
               </div>
             `;
           }
@@ -507,7 +513,7 @@
           if (post.location) {
             locationHTML = `
               <div style="margin-top: 0.6rem;">
-                <a href="events.html" class="location-tag">Location: ${post.location}</a>
+                <a href="events.html" class="location-tag">Location: ${escapeHTML(post.location)}</a>
               </div>
             `;
           }
@@ -518,7 +524,7 @@
           if (isAuthor) {
             actionBtnsHTML = `
               <div class="action-btn-group">
-                <button class="edit-btn" data-postid="${postId}" data-eventid="${post.eventId || ''}" data-content="${escapeHTML(post.content || '')}" data-location="${escapeHTML(post.location || '')}" data-image="${post.image || post.imageUrl || ''}">Edit</button>
+                <button class="edit-btn" data-postid="${postId}" data-eventid="${post.eventId || ''}" data-content="${escapeHTML(post.content || '')}" data-location="${escapeHTML(post.location || '')}" data-image="${escapeHTML(post.image || post.imageUrl || '')}">Edit</button>
                 <button class="delete-btn" data-postid="${postId}" data-eventid="${post.eventId || ''}">Delete</button>
               </div>
             `;
@@ -526,10 +532,10 @@
 
           card.innerHTML = `
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
-              <span style="font-size: 0.95rem; color: #000000;">${username}</span>
+              <span style="font-size: 0.95rem; color: #000000;">${escapeHTML(username)}</span>
               ${actionBtnsHTML}
             </div>
-            <p style="font-size: 0.95rem; color: #000000; line-height: 1.4; margin-bottom: 0.3rem;">${post.content || ""}</p>
+            <p style="font-size: 0.95rem; color: #000000; line-height: 1.4; margin-bottom: 0.3rem;">${escapeHTML(post.content || "")}</p>
             ${imageHTML}
             ${locationHTML}
           `;

@@ -52,8 +52,8 @@ async function getExactCoordinates(addressName) {
     console.error("Geocoding failed for:", addressName, error);
   }
 
-  // Default fallback near GMI
-  return [2.9298, 101.7801];
+  // Do not place an event at an unrelated location when geocoding fails.
+  return null;
 }
 
 function loadEventsFromFirestore() {
@@ -93,22 +93,20 @@ function loadEventsFromFirestore() {
       let lat = event.lat || (event.location && event.location.lat);
       let lng = event.lng || (event.location && event.location.lng);
 
-      if (!lat || !lng) {
-        [lat, lng] = await getExactCoordinates(locationName);
+      if (!Number.isFinite(Number(lat)) || !Number.isFinite(Number(lng))) {
+        const coordinates = await getExactCoordinates(locationName);
+        if (coordinates) [lat, lng] = coordinates;
       }
+      const hasCoordinates = Number.isFinite(Number(lat)) && Number.isFinite(Number(lng));
 
-      let author = event.postedBy || event.authorUsername || event.authorEmail || "Adriana";
-      if (author.includes("@student.gmi.edu.my") || author.includes("noorshazlin")) {
-        author = "Adriana";
-      } else if (author.includes("@")) {
-        author = author.split("@")[0];
-      }
+      let author = event.postedBy || event.authorUsername || event.authorEmail || "Volunteer";
+      if (author.includes("@")) author = author.split("@")[0];
 
       const title = event.title || "Volunteer Activity";
       const desc = event.description || event.content || "";
 
       // Add Map Marker
-      const marker = L.marker([lat, lng]).addTo(map);
+      const marker = hasCoordinates ? L.marker([Number(lat), Number(lng)]).addTo(map) : null;
       
       const popupContent = `
         <div style="font-family: 'Segoe UI', sans-serif; max-width: 250px; padding: 0.2rem;">
@@ -119,8 +117,10 @@ function loadEventsFromFirestore() {
         </div>
       `;
 
-      marker.bindPopup(popupContent);
-      markers.push(marker);
+      if (marker) {
+        marker.bindPopup(popupContent);
+        markers.push(marker);
+      }
 
       // Add Sidebar Event Card
       const card = document.createElement("div");
@@ -131,10 +131,14 @@ function loadEventsFromFirestore() {
         <span class="tag">📍 ${escapeHTML(locationName)}</span>
       `;
 
-      card.addEventListener("click", () => {
-        map.setView([lat, lng], 15);
-        marker.openPopup();
-      });
+      if (marker) {
+        card.addEventListener("click", () => {
+          map.setView([Number(lat), Number(lng)], 15);
+          marker.openPopup();
+        });
+      } else {
+        card.title = "Map location could not be found for this event.";
+      }
 
       eventsContainer.appendChild(card);
     }

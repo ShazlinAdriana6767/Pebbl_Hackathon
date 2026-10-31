@@ -60,12 +60,13 @@ async function finishSignIn(user, isNewUser) {
   }
 
   const profileName = userSnapshot.exists() ? userSnapshot.data().name : "";
-  window.location.href = isNewUser || !profileName ? "profile-register.html" : "index.html";
+  window.location.href = isNewUser || !profileName ? "profile-register.html" : "app-home.html";
 }
 
 function setBusy(isBusy) {
   if (submitButton) submitButton.disabled = isBusy;
   if (googleButton) googleButton.disabled = isBusy;
+  if (authForm) authForm.setAttribute("aria-busy", String(isBusy));
 }
 
 function authErrorMessage(code) {

@@ -426,7 +426,7 @@ $("btn-tab-badges").addEventListener("click", () => setTab("btn-tab-badges"));
 
 $("quick-favorites").addEventListener("click", () => setTab("btn-tab-favorites"));
 $("quick-view-badges").addEventListener("click", () => setTab("btn-tab-badges"));
-$("quick-add-post").addEventListener("click", () => { window.location.href = "index.html"; });
+$("quick-add-post").addEventListener("click", () => { window.location.href = "app-home.html"; });
 
 $("logout-btn").addEventListener("click", () => {
   signOut(auth).then(() => { window.location.href = "login.html"; });

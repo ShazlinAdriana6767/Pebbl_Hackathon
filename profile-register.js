@@ -45,7 +45,7 @@ profileForm.addEventListener("submit", async (e) => {
     });
 
     // Profile complete -> Navigate to homepage feed!
-    window.location.href = "index.html";
+    window.location.href = "app-home.html";
   } catch (error) {
     message.textContent = `Error saving profile: ${error.message}`;
     saveBtn.disabled = false;
