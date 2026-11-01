@@ -1,4 +1,12 @@
 [build]
-  publish = "."
+  command = "npm run build"
+  publish = "dist"
 
-# Static HTML/JS app: no build command required.
+[build.environment]
+  NODE_VERSION = "22"
+
+# Lets /home, /profile etc. work when the page is refreshed
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
