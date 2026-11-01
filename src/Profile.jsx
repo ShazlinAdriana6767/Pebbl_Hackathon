@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   collection, query, where, limit, onSnapshot, doc, getDoc, getDocs,
@@ -7,7 +7,7 @@ import {
 import { db } from "./firebase";
 import { useCurrentUser } from "./useCurrentUser";
 import { useAuthorNames } from "./useAuthorNames";
-import { checkText } from "./geminiCheck";
+import { checkText, checkPost } from "./geminiCheck";
 import AppHeader from "./AppHeader";
 import "./Profile.css";
 
@@ -74,7 +74,7 @@ function PostCard({ post, name, uid, onLike, onOpenMap, onRemove, removeLabel })
   return (
     <div className="pf-post-card">
       <div className="pf-post-header">
-        <span className="pf-post-author">🟢 {name}</span>
+        <span className="pf-post-author"><span className="pf-avatar-sm">{(name || "V").charAt(0).toUpperCase()}</span>{name}</span>
         <span className="pf-post-time">{fmtDate(toDate(post.createdAt))}</span>
       </div>
       {post.content && <div className="pf-post-text">{post.content}</div>}
@@ -325,7 +325,11 @@ export default function Profile() {
   const [badgeForm, setBadgeForm] = useState({ icon: "🏅", title: "", desc: "" });
   const [badgeMsg, setBadgeMsg] = useState("");
   const name = profile.name || user?.displayName || (user?.email || "Volunteer").split("@")[0];
-  const title = isOwner && (profile.title || "").trim() ? profile.title.trim() : isOwner ? "Club Owner" : DEFAULT_TITLE;
+  // "Club Owner of <club name>"; with several clubs: "A & B" or "A + 2 more"
+  const clubNames = [...clubsCreated].sort((a, b) => millis(a.createdAt) - millis(b.createdAt)).map((c) => c.name).filter(Boolean);
+  const clubLabel = clubNames.length <= 2 ? clubNames.join(" & ") : `${clubNames[0]} + ${clubNames.length - 1} more`;
+  const ownerTitle = clubLabel ? `Club Owner of ${clubLabel}` : "Club Owner";
+  const title = isOwner && (profile.title || "").trim() ? profile.title.trim() : isOwner ? ownerTitle : DEFAULT_TITLE;
 
   const stats = useMemo(() => {
     const memberDate = toDate(profile.createdAt) || (user?.metadata?.creationTime ? new Date(user.metadata.creationTime) : null);
@@ -437,7 +441,7 @@ export default function Profile() {
         {/* ---------- Sidebar ---------- */}
         <aside className="pf-sidebar">
           <div className="pf-card pf-user">
-            <div className="pf-avatar">{name.charAt(0).toUpperCase()}</div>
+            <div className="pf-avatar">{profile.photoURL ? <img src={profile.photoURL} alt={name} /> : name.charAt(0).toUpperCase()}</div>
             <div className="pf-name">{name}</div>
             <div className="pf-title">{isOwner && "👑 "}{title}</div>
             {meta && <div className="pf-meta">{meta}</div>}
@@ -462,15 +466,6 @@ export default function Profile() {
           </div>
 
           <div className="pf-content">
-            <div className="pf-quick">
-              <button className="pf-quick-item" onClick={() => navigate("/home")}><span className="pf-circle add">➕</span>Add Post</button>
-              <button className="pf-quick-item" onClick={() => setTab("favourites")}><span className="pf-circle fav">⭐</span>Favourites</button>
-              <button className="pf-quick-item" onClick={() => setTab("badges")}><span className="pf-circle badge">🏆</span>Badges</button>
-              {isOwner && (
-                <button className="pf-quick-item" onClick={() => setTab("owner")}><span className="pf-circle owner">👑</span>My Clubs</button>
-              )}
-            </div>
-
             {tab === "profile" && (
               <>
                 <h3>About me</h3>
@@ -505,37 +500,51 @@ export default function Profile() {
 
             {tab === "posts" && (
               <>
-                <h3>My Volunteer Posts ({myPostsSorted.length})</h3>
-                {myPostsSorted.length === 0 && <p className="pf-muted">You haven’t published any posts yet!</p>}
-                {myPostsSorted.map((p) => (
-                  <PostCard key={p.id} post={p} name={name} uid={uid} onLike={likePost} onOpenMap={openMap} onRemove={removeMyPost} removeLabel="🗑️ Delete" />
-                ))}
+                <div className="pf-head">
+                  <h3>📝 My Posts <span className="pf-count">{myPostsSorted.length}</span></h3>
+                  <button className="pf-primary-btn" onClick={() => navigate("/home")}>➕ Add Post</button>
+                </div>
+                <p className="pf-muted">Everything you have shared, newest first.</p>
+                {myPostsSorted.length === 0 && (
+                  <div className="pf-empty">You haven’t published any posts yet. Tap “Add Post” to share your first one!</div>
+                )}
+                <div className="pf-list">
+                  {myPostsSorted.map((p) => (
+                    <PostCard key={p.id} post={p} name={name} uid={uid} onLike={likePost} onOpenMap={openMap} onRemove={removeMyPost} removeLabel="🗑️ Delete" />
+                  ))}
+                </div>
               </>
             )}
 
             {tab === "favourites" && (
               <>
-                <h3>⭐ Favourites ({savedPosts.length})</h3>
+                <div className="pf-head">
+                  <h3>⭐ Favourites <span className="pf-count">{savedPosts.length}</span></h3>
+                </div>
                 <p className="pf-muted">Posts from other volunteers that you saved. Tap 🔖 Save on a post in the feed to add it here.</p>
-                {savedPosts.length === 0 && <p className="pf-muted">Nothing saved yet.</p>}
-                {savedPosts.map((p) => (
-                  <PostCard
-                    key={p.id}
-                    post={p}
-                    name={savedNameOf(p)}
-                    uid={uid}
-                    onLike={likePost}
-                    onOpenMap={openMap}
-                    onRemove={removeSaved}
-                    removeLabel="Remove from favourites"
-                  />
-                ))}
+                {savedPosts.length === 0 && <div className="pf-empty">Nothing saved yet.</div>}
+                <div className="pf-list">
+                  {savedPosts.map((p) => (
+                    <PostCard
+                      key={p.id}
+                      post={p}
+                      name={savedNameOf(p)}
+                      uid={uid}
+                      onLike={likePost}
+                      onOpenMap={openMap}
+                      onRemove={removeSaved}
+                      removeLabel="Remove from favourites"
+                    />
+                  ))}
+                </div>
               </>
             )}
 
             {tab === "badges" && (
               <>
-                <h3>Badges</h3>
+                <div className="pf-head">
+                  <h3>🏆 Badges <span className="pf-count">{earned.length} / {BADGES.length}</span></h3>
+                </div>
                 <p className="pf-muted">Earned automatically from what you do on Pebbl.</p>
                 <div className="pf-badges">
                   {BADGES.map((b) => {
@@ -546,13 +555,16 @@ export default function Profile() {
                         <div className="pf-badge-icon">{b.icon}</div>
                         <div className="pf-badge-title">{b.title}</div>
                         <div className="pf-badge-desc">{b.desc}</div>
+                        {!done && <div className="pf-bar"><span style={{ width: `${(value / b.goal) * 100}%` }} /></div>}
                         <div className="pf-badge-progress">{done ? "✅ Earned" : `${value} / ${b.goal}`}</div>
                       </div>
                     );
                   })}
                 </div>
 
-                <h3 className="pf-section-gap">My Own Badges ({customBadges.length})</h3>
+                <div className="pf-head pf-section-gap">
+                  <h3>🎨 My Own Badges <span className="pf-count">{customBadges.length}</span></h3>
+                </div>
                 <p className="pf-muted">Made by you, for things you’re proud of, like a beach clean-up or a charity run.</p>
                 <div className="pf-badges">
                   {customBadges.map((b) => (
@@ -593,9 +605,13 @@ export default function Profile() {
 
             {tab === "owner" && isOwner && (
               <>
-                <h3>👑 My Clubs ({clubsCreated.length})</h3>
+                <div className="pf-head">
+                  <h3>👑 My Clubs <span className="pf-count">{clubsCreated.length}</span></h3>
+                </div>
                 <p className="pf-muted">Clubs you started. Only you can see these tools.</p>
-                {clubsCreated.map((c) => <ClubManager key={c.id} club={c} posts={clubPosts} />)}
+                <div className="pf-list">
+                  {clubsCreated.map((c) => <ClubManager key={c.id} club={c} posts={clubPosts} />)}
+                </div>
               </>
             )}
           </div>
@@ -607,6 +623,7 @@ export default function Profile() {
           uid={uid}
           profile={profile}
           isOwner={isOwner}
+          ownerTitle={ownerTitle}
           onClose={() => setEditOpen(false)}
         />
       )}
@@ -614,8 +631,31 @@ export default function Profile() {
   );
 }
 
+/* ---------- Profile photo helper ---------- */
+// Crops to a centred square and shrinks to 256px so it stays small enough to keep on the user document.
+function resizeToDataUrl(file, size = 256) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      const side = Math.min(img.width, img.height);
+      const canvas = document.createElement("canvas");
+      canvas.width = size;
+      canvas.height = size;
+      canvas.getContext("2d").drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, size, size);
+      URL.revokeObjectURL(url);
+      resolve(canvas.toDataURL("image/jpeg", 0.85));
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("Could not read that image."));
+    };
+    img.src = url;
+  });
+}
+
 /* ---------- Edit profile modal ---------- */
-function EditModal({ uid, profile, isOwner, onClose }) {
+function EditModal({ uid, profile, isOwner, ownerTitle, onClose }) {
   const [form, setForm] = useState({
     name: profile.name || "",
     bio: profile.bio || "",
@@ -624,7 +664,9 @@ function EditModal({ uid, profile, isOwner, onClose }) {
     gender: profile.gender || "",
     location: profile.location || "",
     interests: profile.interests || [],
+    photo: profile.photoURL || "",
   });
+  const fileRef = useRef(null);
   const [status, setStatus] = useState("");
   const [saving, setSaving] = useState(false);
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
@@ -634,6 +676,21 @@ function EditModal({ uid, profile, isOwner, onClose }) {
       ...f,
       interests: f.interests.includes(i) ? f.interests.filter((x) => x !== i) : [...f.interests, i],
     }));
+
+  const pickPhoto = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (!file.type.startsWith("image/")) return setStatus("Please choose an image file.");
+    if (file.size > 8 * 1024 * 1024) return setStatus("That image is too big. Pick one under 8 MB.");
+    try {
+      const photo = await resizeToDataUrl(file);
+      setForm((f) => ({ ...f, photo }));
+      setStatus("");
+    } catch (err) {
+      setStatus(err.message);
+    }
+  };
 
   const save = async (e) => {
     e.preventDefault();
@@ -657,8 +714,17 @@ function EditModal({ uid, profile, isOwner, onClose }) {
         setSaving(false);
         return setStatus(`🚫 ${verdict.reason}`);
       }
+      if (form.photo && form.photo !== (profile.photoURL || "")) {
+        setStatus("Checking your photo…");
+        const photoVerdict = await checkPost({ content: "A profile picture for a volunteering community", location: "", image: form.photo });
+        if (!photoVerdict.approved) {
+          setSaving(false);
+          return setStatus(`🚫 ${photoVerdict.reason}`);
+        }
+      }
       setStatus("");
       const update = {
+        photoURL: form.photo,
         name,
         bio: form.bio.trim(),
         age,
@@ -693,6 +759,18 @@ function EditModal({ uid, profile, isOwner, onClose }) {
       <form className="pf-modal" onClick={(e) => e.stopPropagation()} onSubmit={save}>
         <h3>Customize Profile</h3>
 
+        <div className="pf-photo-row">
+          <div className="pf-avatar pf-avatar-edit">
+            {form.photo ? <img src={form.photo} alt="Profile preview" /> : (form.name || "V").charAt(0).toUpperCase()}
+          </div>
+          <div>
+            <input ref={fileRef} type="file" accept="image/*" hidden onChange={pickPhoto} />
+            <button type="button" className="pf-small-btn on" onClick={() => fileRef.current?.click()}>📷 {form.photo ? "Change photo" : "Upload photo"}</button>
+            {form.photo && <button type="button" className="pf-small-btn danger" style={{ marginLeft: "0.5rem" }} onClick={() => setForm((f) => ({ ...f, photo: "" }))}>Remove</button>}
+            <div className="pf-hint">It is cropped to a square. JPG or PNG.</div>
+          </div>
+        </div>
+
         <label>Username</label>
         <input value={form.name} maxLength={30} onChange={set("name")} required />
 
@@ -703,7 +781,7 @@ function EditModal({ uid, profile, isOwner, onClose }) {
         <label>Title</label>
         <input value={form.title} maxLength={40} onChange={set("title")} disabled={!isOwner} placeholder="e.g. Creator of Bangi Volunteering" />
         <div className="pf-hint">
-          {isOwner ? `Leave empty to show “Club Owner”.` : "Start a community on the Clubs page to unlock a custom title."}
+          {isOwner ? `Leave empty to show “${ownerTitle}”.` : "Start a community on the Clubs page to unlock a custom title."}
         </div>
 
         <label>Age</label>
