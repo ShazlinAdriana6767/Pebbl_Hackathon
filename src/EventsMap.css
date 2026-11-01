@@ -54,5 +54,11 @@
 
 @media (max-width: 720px) {
   .events-page .map-container { flex-direction: column-reverse; }
-  .events-page #sidebar { width: 100%; max-width: none; max-height: 38%; min-width: 0; }
+  .events-page #sidebar {
+    width: 100%;
+    max-width: none;
+    max-height: 38%;
+    min-width: 0;
+    padding: 1rem;
+  }
 }

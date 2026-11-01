@@ -111,5 +111,39 @@ header {
   .nav-btn,
   .logout-btn {
     padding: 0 0.65rem;
+    height: 40px; /* comfortable tap target */
+  }
+}
+
+@media (max-width: 480px) {
+  header {
+    padding: 0.6rem 0.75rem;
+  }
+
+  .logo-img {
+    height: 30px;
+  }
+
+  .logo-text {
+    font-size: 1.15rem;
+  }
+
+  .user-greeting {
+    width: 100%;
+    margin-right: 0;
+    font-size: 0.78rem;
+  }
+
+  .nav-links {
+    width: 100%;
+    justify-content: flex-start;
+    row-gap: 0.45rem;
+  }
+
+  .nav-btn,
+  .logout-btn {
+    padding: 0 0.8rem;
+    font-size: 0.82rem;
+    height: 38px;
   }
 }

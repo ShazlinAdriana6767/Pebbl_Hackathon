@@ -23,6 +23,22 @@
 }
 @media (max-width: 800px) { .pf-container { grid-template-columns: 1fr; } }
 
+@media (max-width: 600px) {
+  .pf-container { margin: 1rem auto 2rem; }
+
+  .pf-user { padding: 1.3rem 1rem; }
+
+  .pf-content { padding: 1.2rem; min-height: 0; }
+
+  .pf-tab { min-width: 90px; font-size: 0.85rem; padding: 0.7rem 0.4rem; }
+
+  .pf-club-top { flex-wrap: wrap; }
+
+  .pf-modal { padding: 1.2rem; }
+
+  .pf-post-image { max-height: 280px; }
+}
+
 .pf-card { background: #fff; border-radius: 16px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
 .pf-sidebar { display: flex; flex-direction: column; gap: 1rem; }
 

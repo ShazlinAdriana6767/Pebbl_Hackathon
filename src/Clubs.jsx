@@ -311,7 +311,10 @@ export default function Clubs() {
 
   const feed = posts.filter((p) => {
     if (feedFilter === "all") return true;
-    if (feedFilter === "mine") return myClubs.some((c) => c.id === p.communityId);
+    if (feedFilter === "mine") {
+      const club = clubById[p.communityId];
+      return myClubs.some((c) => c.id === p.communityId) || (club && isOwner(club));
+    }
     return p.communityId === feedFilter;
   });
 
@@ -377,9 +380,6 @@ export default function Clubs() {
               <select id="feed-filter" value={feedFilter} onChange={(e) => setFeedFilter(e.target.value)}>
                 <option value="all">All clubs</option>
                 <option value="mine">My clubs only</option>
-                {clubs.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
               </select>
             </div>
             {myClubs.length === 0 && !clubsLoading && (

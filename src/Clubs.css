@@ -238,5 +238,20 @@
 .clubs-page .lightbox-close { position: absolute; top: 20px; right: 25px; color: white; font-size: 2rem; cursor: pointer; }
 
 @media (max-width: 860px) {
-  .clubs-page .container { grid-template-columns: 1fr; }
+  .clubs-page .container { grid-template-columns: 1fr; margin-top: 1rem; }
+
+  .clubs-page .card-row { flex-wrap: wrap; }
+  .clubs-page .btn-primary.auto { width: 100%; margin-top: 0.6rem; }
+}
+
+@media (max-width: 600px) {
+  .clubs-page .card,
+  .clubs-page .post-card { padding: 1rem; }
+
+  .clubs-page .post-img-container { max-width: 100%; }
+
+  .clubs-page .modal-content { padding: 1.25rem; }
+  .clubs-page .modal-actions { flex-wrap: wrap; }
+
+  .clubs-page .club-chip { max-width: 140px; }
 }

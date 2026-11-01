@@ -1,3 +1,14 @@
 body {
   margin: 0;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* On phones, keep form controls at a readable size: iOS Safari
+   auto-zooms the page when it focuses an input smaller than 16px. */
+@media (max-width: 768px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
 }

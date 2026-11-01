@@ -46,7 +46,7 @@
 /* Grid of cards */
 .home-page .feed-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
   gap: 1.75rem;
   align-items: stretch;
 }
@@ -209,3 +209,23 @@
 .home-page .like-btn:hover, .home-page .save-btn:hover { transform: translateY(-1px); }
 .home-page .like-btn.on { background: #FFE3E3; }
 .home-page .save-btn.on { background: var(--moonstone); color: #fff; }
+
+/* Mobile tweaks */
+@media (max-width: 640px) {
+  .home-page .main-container { margin: 1rem auto 0; padding-bottom: 2rem; }
+
+  .home-page .feed-header-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.8rem;
+    padding: 1rem 1.1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .home-page .open-create-btn { width: 100%; }
+
+  .home-page .modal-card { padding: 1.25rem; }
+  .home-page .modal-actions { flex-wrap: wrap; }
+
+  .home-page .post-card { min-height: 0; }
+}

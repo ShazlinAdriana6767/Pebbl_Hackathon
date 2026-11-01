@@ -9,13 +9,17 @@
   min-height: 100vh;
   background-color: #FFEBAF; /* Vanilla */
   margin: 0;
+  padding: 1rem;
+  box-sizing: border-box;
 }
 .login-page .auth-card {
   background: #FFFFFF;
   padding: 2.5rem 2rem;
   border-radius: 16px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-  width: 340px;
+  width: 100%;
+  max-width: 340px;
+  box-sizing: border-box;
   text-align: center;
   margin: auto;
 }
