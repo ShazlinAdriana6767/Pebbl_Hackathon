@@ -72,7 +72,7 @@ function PostCard({ post, name, uid, onLike, onOpenMap, onRemove, removeLabel })
   const likes = Array.isArray(post.likes) ? post.likes.length : 0;
   const liked = Array.isArray(post.likes) && post.likes.includes(uid);
   return (
-    <div className="pf-post-card">
+    <div className="pf-post-card" id={`pf-post-${post.id}`}>
       <div className="pf-post-header">
         <span className="pf-post-author"><span className="pf-avatar-sm">{(name || "V").charAt(0).toUpperCase()}</span>{name}</span>
         <span className="pf-post-time">{fmtDate(toDate(post.createdAt))}</span>
@@ -273,6 +273,7 @@ export default function Profile() {
   const [profile, setProfile] = useState({});
   const [tab, setTab] = useState("profile");
   const [editOpen, setEditOpen] = useState(false);
+  const [focusPost, setFocusPost] = useState(null); // post to scroll to on the Posts tab
 
   // Live data
   useEffect(() => {
@@ -293,6 +294,26 @@ export default function Profile() {
   );
 
   const isOwner = clubsCreated.length > 0;
+
+  // When a Recent Activity item points at a post, switch to the Posts tab,
+  // scroll the post into view and flash a highlight on it.
+  useEffect(() => {
+    if (!focusPost) return undefined;
+    let flashTimer;
+    const t = setTimeout(() => {
+      const el = document.getElementById(`pf-post-${focusPost}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        el.classList.add("pf-post-highlight");
+        flashTimer = setTimeout(() => el.classList.remove("pf-post-highlight"), 1800);
+      }
+      setFocusPost(null);
+    }, 80);
+    return () => {
+      clearTimeout(t);
+      if (flashTimer) clearTimeout(flashTimer);
+    };
+  }, [tab, focusPost]);
 
   // Favourites = posts from other people that I saved (ids live on my user document)
   const savedIds = profile.saved || [];
@@ -418,8 +439,18 @@ export default function Profile() {
   };
 
   const activity = [
-    ...myPosts.map((x) => ({ icon: "📝", text: `Posted: ${(x.content || "(photo)").slice(0, 80)}`, time: x.createdAt })),
-    ...clubsCreated.map((x) => ({ icon: "🏛️", text: `Started community: ${x.name}`, time: x.createdAt })),
+    ...myPosts.map((x) => ({
+      icon: "📝",
+      text: `Posted: ${(x.content || "(photo)").slice(0, 80)}`,
+      time: x.createdAt,
+      go: () => { setTab("posts"); setFocusPost(x.id); },
+    })),
+    ...clubsCreated.map((x) => ({
+      icon: "🏛️",
+      text: `Started community: ${x.name}`,
+      time: x.createdAt,
+      go: () => navigate("/communities"),
+    })),
   ].sort((a, b) => millis(b.time) - millis(a.time)).slice(0, 8);
 
   const tabs = [
@@ -490,10 +521,10 @@ export default function Profile() {
 
                 <h3>Recent Activity</h3>
                 {activity.length ? activity.map((a, i) => (
-                  <div className="pf-activity" key={i}>
+                  <button type="button" className="pf-activity clickable" key={i} onClick={a.go} title="Open">
                     <span>{a.icon} {a.text}</span>
                     <span className="pf-post-time">{fmtDate(toDate(a.time))}</span>
-                  </div>
+                  </button>
                 )) : <p className="pf-muted">No activity yet. Share a post and it will show up here.</p>}
               </>
             )}

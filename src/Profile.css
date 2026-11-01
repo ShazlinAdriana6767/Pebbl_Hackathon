@@ -105,9 +105,12 @@
 }
 .pf-chip.selected { background: var(--moonstone); border-color: var(--moonstone); color: #fff; }
 .pf-activity { display: flex; justify-content: space-between; gap: 1rem; border: 1.5px solid #EDF2F7; border-radius: 12px; padding: 0.8rem 1rem; margin-bottom: 0.6rem; font-size: 0.92rem; }
+button.pf-activity { width: 100%; background: #fff; color: inherit; cursor: pointer; text-align: left; font-family: inherit; transition: background 0.2s; }
+button.pf-activity:hover { background: #EBF7FA; border-color: #CBE4EC; }
 
 /* Posts */
-.pf-post-card { border: 1.5px solid #EDF2F7; border-radius: 14px; padding: 1.2rem; background: #fff; }
+.pf-post-card { border: 1.5px solid #EDF2F7; border-radius: 14px; padding: 1.2rem; background: #fff; transition: box-shadow 0.3s, border-color 0.3s; }
+.pf-post-card.pf-post-highlight { border-color: var(--moonstone); box-shadow: 0 0 0 3px rgba(76, 157, 176, 0.35); background: #FFFBEA; }
 .pf-post-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
 .pf-post-author { font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
 .pf-post-time { font-size: 0.8rem; color: #A0AEC0; }

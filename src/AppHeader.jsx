@@ -31,7 +31,7 @@ export default function AppHeader({ active, displayName }) {
             {l.label}
           </a>
         ))}
-        <button className="logout-btn" onClick={logout}>Log Out</button>
+        {active === "profile" && <button className="logout-btn" onClick={logout}>Log Out</button>}
       </nav>
     </header>
   );
