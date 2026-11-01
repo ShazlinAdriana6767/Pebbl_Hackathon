@@ -1,0 +1,83 @@
+/* Club owner tools (profile page) */
+.manager-page {
+  min-height: 100vh;
+  background: #FFEBAF;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #2C3E50;
+}
+.manager-page .manager-container { max-width: 860px; margin: 2rem auto; padding: 0 1rem 3rem; }
+.manager-page .manager-note {
+  background: #FFF8E3;
+  border: 1.5px dashed #4C9DB0;
+  color: #3B8495;
+  border-radius: 12px;
+  padding: 0.9rem 1.1rem;
+  margin-bottom: 1.25rem;
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.club-manager { background: white; border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
+.club-manager *, .club-manager *::before, .club-manager *::after { box-sizing: border-box; }
+.club-manager .manager-title { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+.club-manager .manager-title h3 { margin: 0; font-size: 1.25rem; }
+.club-manager .owner-tag { background: #FFEBAF; color: #8A6A00; font-size: 0.75rem; font-weight: 800; padding: 0.25rem 0.65rem; border-radius: 999px; }
+.club-manager .muted { color: #718096; font-size: 0.9rem; }
+.club-manager .muted a { color: #3B8495; font-weight: 700; }
+
+.club-manager .club-panel { border: 1.5px solid #E2E8F0; border-radius: 14px; margin-bottom: 0.9rem; overflow: hidden; }
+.club-manager .panel-head {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  background: #FFF8E3;
+  border: none;
+  padding: 0.9rem 1.1rem;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+}
+.club-manager .panel-head strong { display: block; font-size: 1rem; overflow-wrap: anywhere; }
+.club-manager .panel-head span { font-size: 0.78rem; color: #718096; }
+.club-manager .panel-head .chev { color: #4C9DB0; font-size: 0.8rem; flex: none; }
+.club-manager .panel-body { padding: 1.1rem; display: grid; gap: 1.4rem; }
+.club-manager .panel-body h4 { margin: 0 0 0.6rem; font-size: 0.95rem; }
+.club-manager label { display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.25rem; color: #4A5568; }
+.club-manager input[type="text"], .club-manager select, .club-manager textarea {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 10px;
+  margin-bottom: 0.7rem;
+  font-family: inherit;
+  font-size: 0.92rem;
+  outline: none;
+  background: white;
+}
+.club-manager input[type="text"]:focus, .club-manager select:focus, .club-manager textarea:focus { border-color: #4C9DB0; }
+.club-manager textarea { height: 80px; resize: vertical; }
+
+.club-manager .save-btn { background: #4C9DB0; color: white; border: none; padding: 0.65rem 1.2rem; border-radius: 10px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.club-manager .save-btn:hover:not(:disabled) { background: #3B8495; }
+.club-manager .save-btn:disabled, .club-manager .delete-club-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.club-manager .status-msg { margin: 0.6rem 0 0; font-size: 0.88rem; font-weight: 700; min-height: 1.2em; }
+.club-manager .status-msg.error { color: #E53E3E; }
+.club-manager .status-msg.info { color: #3B8495; }
+.club-manager .status-msg.ok { color: #38A169; }
+
+.club-manager ul { list-style: none; margin: 0; padding: 0; }
+.club-manager .member-list li,
+.club-manager .post-list li { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 0.6rem 0; border-bottom: 1px solid #EDF2F7; font-size: 0.92rem; }
+.club-manager .post-list p { margin: 0 0 0.15rem; overflow-wrap: anywhere; }
+.club-manager .post-list span { font-size: 0.75rem; color: #718096; }
+.club-manager .you-badge { font-style: normal; font-size: 0.72rem; font-weight: 800; background: #FFEBAF; color: #8A6A00; padding: 0.15rem 0.5rem; border-radius: 999px; margin-left: 0.5rem; }
+.club-manager .danger-link { background: none; border: none; color: #E53E3E; font-weight: 700; cursor: pointer; font-family: inherit; font-size: 0.85rem; flex: none; padding: 0.2rem 0.5rem; border-radius: 6px; }
+.club-manager .danger-link:hover { background: #FFF5F5; }
+
+.club-manager .danger-zone { border: 1.5px solid #FED7D7; border-radius: 12px; padding: 0.9rem 1rem; background: #FFFAFA; }
+.club-manager .delete-club-btn { background: white; color: #E53E3E; border: 1.5px solid #E53E3E; padding: 0.55rem 1rem; border-radius: 10px; font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 0.4rem; }
+.club-manager .delete-club-btn:hover:not(:disabled) { background: #E53E3E; color: white; }

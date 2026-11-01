@@ -1,0 +1,58 @@
+/* Events map, ported from events.html. Scoped to .events-page. */
+.events-page {
+  --vanilla: #FFEBAF;
+  --vanilla-light: #FFF8E3;
+  --moonstone: #4C9DB0;
+  --moonstone-dark: #3B8495;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--vanilla);
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #000;
+}
+.events-page *, .events-page *::before, .events-page *::after { box-sizing: border-box; }
+
+.events-page .map-container { display: flex; flex: 1; min-height: 0; width: 100%; }
+
+.events-page #sidebar {
+  width: 38%;
+  max-width: 420px;
+  min-width: 300px;
+  background: white;
+  padding: 1.25rem;
+  overflow-y: auto;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+  z-index: 10;
+}
+.events-page #sidebar h3 { font-size: 1.2rem; font-weight: 800; margin: 0 0 0.8rem; }
+.events-page .map-notice { color: var(--moonstone-dark); font-size: 0.88rem; font-weight: 700; margin-bottom: 0.8rem; }
+.events-page .map-empty { color: #718096; font-size: 0.9rem; }
+
+.events-page .event-card {
+  background: var(--vanilla-light);
+  border-left: 5px solid var(--moonstone);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.events-page .event-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); }
+.events-page .event-card.target { border-left-color: #FFB400; box-shadow: 0 0 0 2px #FFD56B; }
+.events-page .event-card h4 { margin: 0 0 0.3rem; color: var(--moonstone-dark); font-size: 1rem; font-weight: 800; overflow-wrap: anywhere; }
+.events-page .event-card p { margin: 0 0 0.5rem; font-size: 0.85rem; color: #4A5568; }
+.events-page .event-card .tag { display: inline-block; background: var(--vanilla); padding: 0.2rem 0.5rem; border-radius: 6px; font-size: 0.78rem; font-weight: 700; }
+
+.events-page #map { flex: 1; height: 100%; z-index: 1; }
+
+.pin-icon { background: none; border: none; font-size: 28px; line-height: 32px; text-align: center; }
+.map-popup { font-family: 'Inter', 'Segoe UI', sans-serif; max-width: 240px; }
+.map-popup h4 { margin: 0 0 0.35rem; color: #3B8495; font-size: 0.95rem; font-weight: 800; overflow-wrap: anywhere; }
+.map-popup .popup-loc { background: #FFEBAF; padding: 0.2rem 0.5rem; border-radius: 6px; font-weight: 700; font-size: 0.75rem; }
+.map-popup .popup-by { font-size: 0.75rem; color: #718096; margin-top: 0.4rem; }
+
+@media (max-width: 720px) {
+  .events-page .map-container { flex-direction: column-reverse; }
+  .events-page #sidebar { width: 100%; max-width: none; max-height: 38%; min-width: 0; }
+}

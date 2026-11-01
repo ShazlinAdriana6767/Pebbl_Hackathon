@@ -1,0 +1,179 @@
+/* Same design as your old signup.html. Rules are scoped to .signup-page
+   so they do not change any other page. */
+.signup-page {
+  --vanilla: #FFEBAF;
+  --vanilla-light: #FFF8E3;
+  --moonstone: #4C9DB0;
+  --moonstone-dark: #3B8495;
+  --dark-text: #2C3E50;
+  --card-bg: #FFFFFF;
+  --yellow-accent: #FFD56B;
+
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--vanilla);
+  color: var(--dark-text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* :where() keeps this reset from overriding the header styles */
+:where(.signup-page),
+:where(.signup-page) * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.signup-page .primary-nav-btn {
+  background-color: var(--moonstone);
+  color: white !important;
+}
+.signup-page .primary-nav-btn:hover {
+  background-color: var(--moonstone-dark);
+}
+
+.signup-page .auth-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem 1rem;
+}
+
+.signup-page .auth-card {
+  background: var(--card-bg);
+  padding: 2.5rem 2rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+  border: 3px solid #FFFFFF;
+  position: relative;
+}
+
+.signup-page .auth-card::before {
+  content: '✨';
+  position: absolute;
+  top: -15px;
+  right: 20px;
+  font-size: 1.5rem;
+}
+
+.signup-page .card-logo {
+  height: 65px;
+  width: auto;
+  margin-bottom: 1rem;
+}
+
+.signup-page h2 {
+  margin-bottom: 0.5rem;
+  color: var(--dark-text);
+  font-weight: 800;
+  font-size: 1.6rem;
+}
+
+.signup-page .subtitle {
+  font-size: 0.9rem;
+  color: #718096;
+  margin-bottom: 1.5rem;
+}
+
+.signup-page input {
+  width: 100%;
+  padding: 0.85rem;
+  margin-bottom: 1rem;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 12px;
+  box-sizing: border-box;
+  outline: none;
+  font-family: inherit;
+  font-size: 0.95rem;
+  background-color: #FAFAFA;
+  transition: all 0.2s;
+}
+.signup-page input:focus {
+  border-color: var(--moonstone);
+  background-color: #FFFFFF;
+}
+
+.signup-page .submit-btn {
+  width: 100%;
+  height: 44px;
+  border: none;
+  border-radius: 12px;
+  background-color: var(--moonstone);
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-bottom: 0.8rem;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  box-shadow: 0 4px 12px rgba(76, 157, 176, 0.3);
+}
+.signup-page .submit-btn:hover {
+  background-color: var(--moonstone-dark);
+  transform: translateY(-1px);
+}
+
+.signup-page .google-btn {
+  width: 100%;
+  height: 44px;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 12px;
+  background-color: #FFFFFF;
+  color: var(--dark-text);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-bottom: 1.2rem;
+  transition: background-color 0.2s;
+}
+.signup-page .google-btn:hover {
+  background-color: #F8FAFC;
+}
+
+.signup-page .divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: #A0AEC0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin: 1rem 0;
+}
+.signup-page .divider::before,
+.signup-page .divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #E2E8F0;
+}
+.signup-page .divider span {
+  padding: 0 0.5rem;
+}
+
+.signup-page .switch-text {
+  font-size: 0.9rem;
+  color: #718096;
+  margin-top: 0.5rem;
+}
+.signup-page .switch-link {
+  color: var(--moonstone-dark);
+  text-decoration: none;
+  font-weight: 700;
+}
+.signup-page .switch-link:hover {
+  text-decoration: underline;
+}
+
+.signup-page .message {
+  margin-top: 1rem;
+  color: #E53E3E;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
