@@ -1,4 +1,6 @@
-# React + Vite
+git add netlify.toml
+git commit -m "Configure Netlify for the React app"
+git push
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 

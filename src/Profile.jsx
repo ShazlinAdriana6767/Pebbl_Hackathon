@@ -7,6 +7,7 @@ import {
 import { db } from "./firebase";
 import { useCurrentUser } from "./useCurrentUser";
 import { useAuthorNames } from "./useAuthorNames";
+import { checkText } from "./geminiCheck";
 import AppHeader from "./AppHeader";
 import "./Profile.css";
 
@@ -142,6 +143,9 @@ function ClubManager({ club, posts }) {
     if (name.length < 3 || name.length > 60) return setMsg("Club name must be 3 to 60 characters.");
     setBusy(true);
     try {
+      setMsg("Checking with Gemini…");
+      const verdict = await checkText(`${name}\n${form.description}`, "a volunteer club’s name and description");
+      if (!verdict.approved) return setMsg(`🚫 ${verdict.reason}`);
       await updateDoc(doc(db, "communities", club.id), {
         name,
         category: form.category,
@@ -385,6 +389,9 @@ export default function Profile() {
     const icon = Array.from(badgeForm.icon.trim()).slice(0, 2).join("") || "🏅";
     if (title.length < 2 || title.length > 30) return setBadgeMsg("Badge name must be 2 to 30 characters.");
     if (customBadges.length >= 12) return setBadgeMsg("You can add up to 12 custom badges.");
+    setBadgeMsg("Checking with Gemini…");
+    const verdict = await checkText(`${title}\n${desc}`, "a badge name and description");
+    if (!verdict.approved) return setBadgeMsg(`🚫 ${verdict.reason}`);
     try {
       await updateDoc(doc(db, "users", uid), {
         customBadges: arrayUnion({ id: Date.now().toString(36), icon, title, desc }),
@@ -456,8 +463,8 @@ export default function Profile() {
 
           <div className="pf-content">
             <div className="pf-quick">
-              <button className="pf-quick-item" onClick={() => setTab("favourites")}><span className="pf-circle fav">⭐</span>Favourites</button>
               <button className="pf-quick-item" onClick={() => navigate("/home")}><span className="pf-circle add">➕</span>Add Post</button>
+              <button className="pf-quick-item" onClick={() => setTab("favourites")}><span className="pf-circle fav">⭐</span>Favourites</button>
               <button className="pf-quick-item" onClick={() => setTab("badges")}><span className="pf-circle badge">🏆</span>Badges</button>
               {isOwner && (
                 <button className="pf-quick-item" onClick={() => setTab("owner")}><span className="pf-circle owner">👑</span>My Clubs</button>
@@ -641,6 +648,16 @@ function EditModal({ uid, profile, isOwner, onClose }) {
 
     setSaving(true);
     try {
+      setStatus("Checking with Gemini…");
+      const verdict = await checkText(
+        [name, form.bio, title, form.location].join("\n"),
+        "a person’s profile (username, bio, title and location)"
+      );
+      if (!verdict.approved) {
+        setSaving(false);
+        return setStatus(`🚫 ${verdict.reason}`);
+      }
+      setStatus("");
       const update = {
         name,
         bio: form.bio.trim(),
