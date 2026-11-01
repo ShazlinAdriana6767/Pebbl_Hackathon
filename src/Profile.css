@@ -188,3 +188,9 @@
   .pf-badges { grid-template-columns: repeat(2, 1fr); gap: 0.7rem; }
   .pf-head .pf-primary-btn { padding: 0.55rem 0.9rem; }
 }
+
+/* Profile photo */
+.pf-avatar { overflow: hidden; }
+.pf-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pf-photo-row { display: flex; align-items: center; gap: 1rem; margin: 0.8rem 0 0.4rem; }
+.pf-avatar-edit { width: 72px; height: 72px; font-size: 1.8rem; margin: 0; flex: none; }

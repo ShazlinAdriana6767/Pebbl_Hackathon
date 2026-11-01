@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   collection, query, where, limit, onSnapshot, doc, getDoc, getDocs,
@@ -7,7 +7,7 @@ import {
 import { db } from "./firebase";
 import { useCurrentUser } from "./useCurrentUser";
 import { useAuthorNames } from "./useAuthorNames";
-import { checkText } from "./geminiCheck";
+import { checkText, checkPost } from "./geminiCheck";
 import AppHeader from "./AppHeader";
 import "./Profile.css";
 
@@ -271,7 +271,7 @@ export default function Profile() {
   const uid = user?.uid;
 
   const [profile, setProfile] = useState({});
-  const [tab, setTab] = useState("posts");
+  const [tab, setTab] = useState("profile");
   const [editOpen, setEditOpen] = useState(false);
 
   // Live data
@@ -423,11 +423,11 @@ export default function Profile() {
   ].sort((a, b) => millis(b.time) - millis(a.time)).slice(0, 8);
 
   const tabs = [
+    ["profile", "📇 Profile"],
     ["posts", "📝 Posts"],
     ["favourites", "⭐ Favourites"],
     ["badges", "🏆 Badges"],
     ...(isOwner ? [["owner", "👑 My Clubs"]] : []),
-    ["profile", "📇 Profile"],
   ];
 
   const myPostsSorted = [...myPosts].sort(newest);
@@ -441,7 +441,7 @@ export default function Profile() {
         {/* ---------- Sidebar ---------- */}
         <aside className="pf-sidebar">
           <div className="pf-card pf-user">
-            <div className="pf-avatar">{name.charAt(0).toUpperCase()}</div>
+            <div className="pf-avatar">{profile.photoURL ? <img src={profile.photoURL} alt={name} /> : name.charAt(0).toUpperCase()}</div>
             <div className="pf-name">{name}</div>
             <div className="pf-title">{isOwner && "👑 "}{title}</div>
             {meta && <div className="pf-meta">{meta}</div>}
@@ -631,6 +631,29 @@ export default function Profile() {
   );
 }
 
+/* ---------- Profile photo helper ---------- */
+// Crops to a centred square and shrinks to 256px so it stays small enough to keep on the user document.
+function resizeToDataUrl(file, size = 256) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      const side = Math.min(img.width, img.height);
+      const canvas = document.createElement("canvas");
+      canvas.width = size;
+      canvas.height = size;
+      canvas.getContext("2d").drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, size, size);
+      URL.revokeObjectURL(url);
+      resolve(canvas.toDataURL("image/jpeg", 0.85));
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("Could not read that image."));
+    };
+    img.src = url;
+  });
+}
+
 /* ---------- Edit profile modal ---------- */
 function EditModal({ uid, profile, isOwner, ownerTitle, onClose }) {
   const [form, setForm] = useState({
@@ -641,7 +664,9 @@ function EditModal({ uid, profile, isOwner, ownerTitle, onClose }) {
     gender: profile.gender || "",
     location: profile.location || "",
     interests: profile.interests || [],
+    photo: profile.photoURL || "",
   });
+  const fileRef = useRef(null);
   const [status, setStatus] = useState("");
   const [saving, setSaving] = useState(false);
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
@@ -651,6 +676,21 @@ function EditModal({ uid, profile, isOwner, ownerTitle, onClose }) {
       ...f,
       interests: f.interests.includes(i) ? f.interests.filter((x) => x !== i) : [...f.interests, i],
     }));
+
+  const pickPhoto = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (!file.type.startsWith("image/")) return setStatus("Please choose an image file.");
+    if (file.size > 8 * 1024 * 1024) return setStatus("That image is too big. Pick one under 8 MB.");
+    try {
+      const photo = await resizeToDataUrl(file);
+      setForm((f) => ({ ...f, photo }));
+      setStatus("");
+    } catch (err) {
+      setStatus(err.message);
+    }
+  };
 
   const save = async (e) => {
     e.preventDefault();
@@ -674,8 +714,17 @@ function EditModal({ uid, profile, isOwner, ownerTitle, onClose }) {
         setSaving(false);
         return setStatus(`🚫 ${verdict.reason}`);
       }
+      if (form.photo && form.photo !== (profile.photoURL || "")) {
+        setStatus("Checking your photo…");
+        const photoVerdict = await checkPost({ content: "A profile picture for a volunteering community", location: "", image: form.photo });
+        if (!photoVerdict.approved) {
+          setSaving(false);
+          return setStatus(`🚫 ${photoVerdict.reason}`);
+        }
+      }
       setStatus("");
       const update = {
+        photoURL: form.photo,
         name,
         bio: form.bio.trim(),
         age,
@@ -709,6 +758,18 @@ function EditModal({ uid, profile, isOwner, ownerTitle, onClose }) {
     <div className="pf-overlay" onClick={onClose}>
       <form className="pf-modal" onClick={(e) => e.stopPropagation()} onSubmit={save}>
         <h3>Customize Profile</h3>
+
+        <div className="pf-photo-row">
+          <div className="pf-avatar pf-avatar-edit">
+            {form.photo ? <img src={form.photo} alt="Profile preview" /> : (form.name || "V").charAt(0).toUpperCase()}
+          </div>
+          <div>
+            <input ref={fileRef} type="file" accept="image/*" hidden onChange={pickPhoto} />
+            <button type="button" className="pf-small-btn on" onClick={() => fileRef.current?.click()}>📷 {form.photo ? "Change photo" : "Upload photo"}</button>
+            {form.photo && <button type="button" className="pf-small-btn danger" style={{ marginLeft: "0.5rem" }} onClick={() => setForm((f) => ({ ...f, photo: "" }))}>Remove</button>}
+            <div className="pf-hint">It is cropped to a square. JPG or PNG.</div>
+          </div>
+        </div>
 
         <label>Username</label>
         <input value={form.name} maxLength={30} onChange={set("name")} required />
