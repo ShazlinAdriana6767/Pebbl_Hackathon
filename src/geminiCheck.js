@@ -143,10 +143,22 @@ export async function checkPost({ content, location, image }) {
     const safe = parsed.isSafe === true;
     const reason = parsed.reason && parsed.reason !== "Clean" ? parsed.reason : DEFAULT_REASON;
     return { approved: safe, reason: safe ? "" : reason, checked: true };
-  } catch (err) {
+   } catch (err) {
     console.warn("Gemini check failed, letting the post through as unchecked:", err);
     return { approved: true, reason: "", checked: false };
   } finally {
     clearTimeout(timer);
   }
+}
+
+// Older pages call checkText(...). It does the same check as checkPost.
+export function checkText(input, location = "") {
+  if (input && typeof input === "object") {
+    return checkPost({
+      content: input.content ?? input.text ?? "",
+      location: input.location ?? location,
+      image: input.image ?? "",
+    });
+  }
+  return checkPost({ content: String(input ?? ""), location, image: "" });
 }
