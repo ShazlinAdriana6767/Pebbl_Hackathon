@@ -1,0 +1,6 @@
+
+/* Add these lines to the bottom of src/EventDetail.css */
+.event-detail .ed-cal-opt { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; font-weight: 600; margin: 0 0 0.6rem; cursor: pointer; }
+.event-detail .ed-cal-opt input { width: 18px; height: 18px; accent-color: #4C9DB0; }
+.event-detail .ed-ok { color: #2F855A; font-size: 0.88rem; font-weight: 700; margin: 0.5rem 0; }
+.event-detail .ed-ok a { color: #2F855A; }
