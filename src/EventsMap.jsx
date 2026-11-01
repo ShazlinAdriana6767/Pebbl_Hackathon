@@ -47,6 +47,7 @@ export default function EventsMap() {
   const [loadError, setLoadError] = useState("");
   const [found, setFound] = useState({}); // id -> [lat, lng] for older posts without saved coordinates
   const [map, setMap] = useState(null);
+  const [locationSearch, setLocationSearch] = useState("");
 
   const markerRefs = useRef({});
   const triedRef = useRef(new Set());
@@ -80,6 +81,19 @@ export default function EventsMap() {
 
   const coordsOf = (p) => (hasCoords(p) ? [p.lat, p.lng] : found[p.id] || null);
   const onMap = places.map((p) => ({ p, c: coordsOf(p) })).filter((x) => x.c);
+  const filteredPlaces = useMemo(() => {
+    const search = locationSearch.trim().toLocaleLowerCase();
+    return search
+      ? places.filter((p) => p.location.toLocaleLowerCase().includes(search))
+      : places;
+  }, [locationSearch, places]);
+  const filteredOnMap = useMemo(
+    () =>
+      filteredPlaces
+        .map((p) => ({ p, c: hasCoords(p) ? [p.lat, p.lng] : found[p.id] || null }))
+        .filter((x) => x.c),
+    [filteredPlaces, found]
+  );
 
   // Older posts have no saved coordinates: look them up one by one (OpenStreetMap allows 1 per second)
   useEffect(() => {
@@ -128,6 +142,15 @@ export default function EventsMap() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, targetId, places, found]);
 
+  useEffect(() => {
+    if (!map || !locationSearch.trim() || filteredOnMap.length === 0) return;
+    if (filteredOnMap.length === 1) {
+      map.flyTo(filteredOnMap[0].c, 14);
+    } else {
+      map.fitBounds(filteredOnMap.map((x) => x.c), { padding: [40, 40], maxZoom: 14 });
+    }
+  }, [filteredOnMap, locationSearch, map]);
+
   function focusPost(p) {
     const c = coordsOf(p);
     if (!c || !map) return;
@@ -142,6 +165,16 @@ export default function EventsMap() {
       <div className="map-container">
         <aside id="sidebar">
           <h3>📍 Nearby Volunteer Events</h3>
+          <label className="location-search">
+            <span>Search locations</span>
+            <input
+              type="search"
+              aria-label="Search events by location"
+              value={locationSearch}
+              onChange={(event) => setLocationSearch(event.target.value)}
+              placeholder="Search by location…"
+            />
+          </label>
 
           {loading && <p className="map-empty">Loading events…</p>}
           {loadError && <p className="map-empty">Couldn’t load events: {loadError}</p>}
@@ -150,11 +183,16 @@ export default function EventsMap() {
               No events with a location yet. Publish a post with a location on the Home page!
             </p>
           )}
-          {places.length > 0 && onMap.length < places.length && (
-            <p className="map-notice">Some posts don’t have a map pin yet.</p>
+          {filteredPlaces.length > 0 &&
+            filteredOnMap.length < filteredPlaces.length && (
+              <p className="map-notice">Some posts don’t have a map pin yet.</p>
           )}
 
-          {places.map((p) => {
+          {!loading && !loadError && places.length > 0 && filteredPlaces.length === 0 && (
+            <p className="map-empty">No locations match “{locationSearch}”.</p>
+          )}
+
+          {filteredPlaces.map((p) => {
             const detail = detailOf(p.content);
             return (
               <div
@@ -175,7 +213,7 @@ export default function EventsMap() {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          {onMap.map(({ p, c }) => (
+          {filteredOnMap.map(({ p, c }) => (
             <Marker
               key={p.id}
               position={c}
