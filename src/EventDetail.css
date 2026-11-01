@@ -1,0 +1,42 @@
+/* Event details panel on the Events Map sidebar */
+.event-detail { font-family: inherit; color: #2C3E50; }
+.event-detail *, .event-detail *::before, .event-detail *::after { box-sizing: border-box; }
+.event-detail .ed-back { background: none; border: none; color: #3B8495; font-weight: 700; font-size: 0.9rem; cursor: pointer; padding: 0; margin-bottom: 0.8rem; font-family: inherit; }
+.event-detail .ed-back:hover { text-decoration: underline; }
+.event-detail .ed-image { width: 100%; max-height: 200px; object-fit: cover; border-radius: 12px; margin-bottom: 0.8rem; display: block; }
+.event-detail .ed-title { margin: 0 0 0.5rem; font-size: 1.3rem; font-weight: 800; overflow-wrap: anywhere; }
+.event-detail .ed-badges { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.8rem; }
+.event-detail .ed-pill { font-size: 0.75rem; font-weight: 800; padding: 0.2rem 0.6rem; border-radius: 999px; text-decoration: none; }
+.event-detail .ed-pill.soon { background: #E6F6EC; color: #2F855A; }
+.event-detail .ed-pill.past { background: #EDF2F7; color: #718096; }
+.event-detail .ed-pill.club { background: #FFEBAF; color: #3B8495; }
+.event-detail .ed-facts { display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.92rem; margin-bottom: 0.8rem; }
+.event-detail .ed-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.event-detail .ed-link { display: inline-block; border: none; cursor: pointer; font-family: inherit; background: #EBF7FA; color: #3B8495; font-weight: 700; font-size: 0.85rem; padding: 0.4rem 0.8rem; border-radius: 10px; text-decoration: none; }
+.event-detail .ed-link:hover { background: #DDEFF4; }
+.event-detail .ed-h { margin: 1.4rem 0 0.5rem; font-size: 1rem; font-weight: 800; }
+.event-detail .ed-text { margin: 0; font-size: 0.92rem; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+.event-detail .ed-muted { margin: 0.3rem 0 0.6rem; font-size: 0.82rem; color: #718096; }
+.event-detail .ed-error { margin: 0.5rem 0; font-size: 0.82rem; font-weight: 700; color: #C53030; }
+
+.event-detail .ed-going { width: 100%; border: none; border-radius: 12px; padding: 0.75rem; font-weight: 800; font-size: 0.95rem; cursor: pointer; background: #4C9DB0; color: #fff; font-family: inherit; }
+.event-detail .ed-going:hover:not(:disabled) { background: #3B8495; }
+.event-detail .ed-going.on { background: #E6F6EC; color: #2F855A; }
+.event-detail .ed-going:disabled { opacity: 0.6; cursor: not-allowed; }
+.event-detail .ed-people { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.7rem; }
+.event-detail .ed-person { display: inline-flex; align-items: center; gap: 0.4rem; background: #F7FAFC; border-radius: 999px; padding: 0.2rem 0.7rem 0.2rem 0.25rem; font-size: 0.82rem; font-weight: 600; }
+.event-detail .ed-avatar { width: 24px; height: 24px; border-radius: 50%; background: #4C9DB0; color: #fff; display: grid; place-items: center; font-size: 0.72rem; font-weight: 800; }
+
+.event-detail .ed-thread { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 0.8rem; }
+.event-detail .ed-comment { background: #F7FAFC; border-radius: 12px; padding: 0.6rem 0.8rem; }
+.event-detail .ed-comment-top { display: flex; justify-content: space-between; gap: 0.5rem; font-size: 0.82rem; margin-bottom: 0.2rem; }
+.event-detail .ed-time { color: #A0AEC0; font-size: 0.75rem; white-space: nowrap; }
+.event-detail .ed-host-tag { margin-left: 0.4rem; background: #FFEBAF; color: #3B8495; font-size: 0.68rem; font-weight: 800; padding: 0.1rem 0.4rem; border-radius: 6px; }
+.event-detail .ed-comment-text { font-size: 0.9rem; line-height: 1.4; white-space: pre-wrap; overflow-wrap: anywhere; }
+.event-detail .ed-del { background: none; border: none; color: #C53030; font-size: 0.75rem; font-weight: 700; cursor: pointer; padding: 0.2rem 0 0; font-family: inherit; }
+.event-detail .ed-form textarea { width: 100%; height: 80px; resize: vertical; padding: 0.6rem 0.7rem; border: 1.5px solid #E2E8F0; border-radius: 10px; font: inherit; font-size: 0.9rem; }
+.event-detail .ed-form textarea:focus { outline: 2px solid #4C9DB0; outline-offset: 1px; }
+.event-detail .ed-form-row { display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; margin-top: 0.5rem; }
+.event-detail .ed-msg { font-size: 0.8rem; font-weight: 700; color: #C53030; }
+.event-detail .ed-send { background: #4C9DB0; color: #fff; border: none; border-radius: 10px; padding: 0.5rem 1.2rem; font-weight: 800; cursor: pointer; font-family: inherit; }
+.event-detail .ed-send:disabled { opacity: 0.5; cursor: not-allowed; }

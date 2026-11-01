@@ -121,6 +121,8 @@
 
 /* Inputs & buttons */
 .clubs-page input[type="text"],
+.clubs-page input[type="date"],
+.clubs-page input[type="time"],
 .clubs-page input[type="file"],
 .clubs-page textarea,
 .clubs-page select {
@@ -135,6 +137,8 @@
   outline: none;
 }
 .clubs-page input[type="text"]:focus,
+.clubs-page input[type="date"]:focus,
+.clubs-page input[type="time"]:focus,
 .clubs-page textarea:focus,
 .clubs-page select:focus { border-color: var(--moonstone); }
 .clubs-page textarea { height: 90px; resize: vertical; }
@@ -255,3 +259,9 @@
 
   .clubs-page .club-chip { max-width: 140px; }
 }
+
+/* Post title and event time */
+.clubs-page .post-title { margin: 0 0 0.3rem; font-size: 1.05rem; font-weight: 800; color: #2C3E50; overflow-wrap: anywhere; }
+.clubs-page .post-when { display: inline-block; background: #EBF7FA; color: #3B8495; font-weight: 700; font-size: 0.8rem; border-radius: 8px; padding: 0.2rem 0.6rem; margin-bottom: 0.5rem; }
+.clubs-page .when-row { display: flex; gap: 0.6rem; }
+.clubs-page .when-row input { flex: 1; min-width: 0; }

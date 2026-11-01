@@ -4,6 +4,8 @@ import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
+import { formatWhen } from "./eventTime";
+import EventDetail from "./EventDetail";
 import { db } from "./firebase";
 import { geocode } from "./geocode";
 import { useCurrentUser } from "./useCurrentUser";
@@ -30,6 +32,14 @@ function titleOf(text = "") {
   return first.length > 60 ? first.slice(0, 57) + "…" : first;
 }
 
+// Cards prefer the title the person typed; older posts fall back to the first line of the text.
+const cardTitle = (p) => p.title || titleOf(p.content);
+const cardDetail = (p) => {
+  if (!p.title) return detailOf(p.content);
+  const t = (p.content || "").trim();
+  return t.length > 140 ? t.slice(0, 137) + "…" : t;
+};
+
 function detailOf(text = "") {
   const t = text.trim();
   const first = t.split("\n")[0].trim();
@@ -39,7 +49,7 @@ function detailOf(text = "") {
 
 export default function EventsMap() {
   const { user, displayName } = useCurrentUser();
-  const [params] = useSearchParams();
+  const [params, setParams] = useSearchParams();
   const targetId = params.get("post");
 
   const [posts, setPosts] = useState([]);
@@ -151,6 +161,19 @@ export default function EventsMap() {
     }
   }, [filteredOnMap, locationSearch, map]);
 
+  // Open the details panel for one event (the ?post=ID in the address keeps it shareable)
+  function selectEvent(p) {
+    flewTo.current = p.id;
+    setParams({ post: p.id }, { replace: true });
+    focusPost(p);
+  }
+
+  function closeEvent() {
+    setParams({}, { replace: true });
+  }
+
+  const selected = targetId ? places.find((p) => p.id === targetId) : null;
+
   function focusPost(p) {
     const c = coordsOf(p);
     if (!c || !map) return;
@@ -164,48 +187,65 @@ export default function EventsMap() {
 
       <div className="map-container">
         <aside id="sidebar">
-          <h3>📍 Nearby Volunteer Events</h3>
-          <label className="location-search">
-            <span>Search locations</span>
-            <input
-              type="search"
-              aria-label="Search events by location"
-              value={locationSearch}
-              onChange={(event) => setLocationSearch(event.target.value)}
-              placeholder="Search by location…"
+          {selected ? (
+            <EventDetail
+              key={selected.id}
+              post={selected}
+              user={user}
+              displayName={displayName}
+              hostName={nameOf(selected)}
+              clubName={selected.communityName}
+              coords={coordsOf(selected)}
+              onBack={closeEvent}
             />
-          </label>
+          ) : (
+            <>
+              <h3>📍 Nearby Volunteer Events</h3>
+              <label className="location-search">
+                <span>Search locations</span>
+                <input
+                  type="search"
+                  aria-label="Search events by location"
+                  value={locationSearch}
+                  onChange={(event) => setLocationSearch(event.target.value)}
+                  placeholder="Search by location…"
+                />
+              </label>
 
-          {loading && <p className="map-empty">Loading events…</p>}
-          {loadError && <p className="map-empty">Couldn’t load events: {loadError}</p>}
-          {!loading && !loadError && places.length === 0 && (
-            <p className="map-empty">
-              No events with a location yet. Publish a post with a location on the Home page!
-            </p>
-          )}
-          {filteredPlaces.length > 0 &&
-            filteredOnMap.length < filteredPlaces.length && (
-              <p className="map-notice">Some posts don’t have a map pin yet.</p>
-          )}
+              {loading && <p className="map-empty">Loading events…</p>}
+              {loadError && <p className="map-empty">Couldn’t load events: {loadError}</p>}
+              {!loading && !loadError && places.length === 0 && (
+                <p className="map-empty">
+                  No events with a location yet. Publish a post with a location on the Home page!
+                </p>
+              )}
+              {filteredPlaces.length > 0 &&
+                filteredOnMap.length < filteredPlaces.length && (
+                  <p className="map-notice">Some posts don’t have a map pin yet.</p>
+              )}
 
-          {!loading && !loadError && places.length > 0 && filteredPlaces.length === 0 && (
-            <p className="map-empty">No locations match “{locationSearch}”.</p>
-          )}
+              {!loading && !loadError && places.length > 0 && filteredPlaces.length === 0 && (
+                <p className="map-empty">No locations match “{locationSearch}”.</p>
+              )}
 
-          {filteredPlaces.map((p) => {
-            const detail = detailOf(p.content);
-            return (
-              <div
-                key={p.id}
-                className={`event-card${p.id === targetId ? " target" : ""}`}
-                onClick={() => focusPost(p)}
-              >
-                <h4>{titleOf(p.content)}</h4>
-                {detail && <p>{detail}</p>}
-                <span className="tag">📍 {p.location}</span>
-              </div>
-            );
-          })}
+              {filteredPlaces.map((p) => {
+                const detail = cardDetail(p);
+                return (
+                  <div
+                    key={p.id}
+                    className={`event-card${p.id === targetId ? " target" : ""}`}
+                    onClick={() => selectEvent(p)}
+                  >
+                    <h4>{cardTitle(p)}</h4>
+                    {p.eventTime && <div className="event-when">🕒 {formatWhen(p.eventTime)}</div>}
+                    {detail && <p>{detail}</p>}
+                    <span className="tag">📍 {p.location}</span>
+                {(p.going || []).length > 0 && <span className="event-going">👥 {p.going.length} going</span>}
+                  </div>
+                );
+              })}
+            </>
+          )}
         </aside>
 
         <MapContainer id="map" ref={setMap} center={DEFAULT_CENTER} zoom={11} scrollWheelZoom={true}>
@@ -218,15 +258,18 @@ export default function EventsMap() {
               key={p.id}
               position={c}
               icon={pinIcon}
+              eventHandlers={{ click: () => selectEvent(p) }}
               ref={(m) => {
                 if (m) markerRefs.current[p.id] = m;
               }}
             >
               <Popup>
                 <div className="map-popup">
-                  <h4>{titleOf(p.content)}</h4>
+                  <h4>{cardTitle(p)}</h4>
+                  {p.eventTime && <div className="popup-when">🕒 {formatWhen(p.eventTime)}</div>}
                   <span className="popup-loc">📍 {p.location}</span>
                   <div className="popup-by">Posted by {nameOf(p)}</div>
+                  <button className="popup-more" onClick={() => selectEvent(p)}>See details &amp; join →</button>
                 </div>
               </Popup>
             </Marker>

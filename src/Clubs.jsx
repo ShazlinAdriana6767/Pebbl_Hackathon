@@ -16,6 +16,7 @@ import {
 import { db } from "./firebase";
 import { checkPost } from "./geminiCheck";
 import { geocode } from "./geocode";
+import { splitInput, joinInput, formatWhen } from "./eventTime";
 import { useCurrentUser } from "./useCurrentUser";
 import { useAuthorNames } from "./useAuthorNames";
 import AppHeader from "./AppHeader";
@@ -99,6 +100,10 @@ function CreateClubModal({ user, displayName, onClose }) {
 /* ---------- Share / edit a club post ---------- */
 function PostModal({ user, displayName, joinedClubs, defaultClubId, editing, onClose }) {
   const [clubId, setClubId] = useState(editing ? editing.communityId : defaultClubId || joinedClubs[0]?.id || "");
+  const [title, setTitle] = useState(editing?.title || "");
+  const initialWhen = splitInput(editing?.eventTime);
+  const [eventDate, setEventDate] = useState(initialWhen.date);
+  const [eventClock, setEventClock] = useState(initialWhen.time);
   const [content, setContent] = useState(editing?.content || "");
   const [location, setLocation] = useState(editing && editing.location !== "General" ? editing.location : "");
   const [image, setImage] = useState(editing?.imageUrl || "");
@@ -125,15 +130,23 @@ function PostModal({ user, displayName, joinedClubs, defaultClubId, editing, onC
   }
 
   async function submit() {
+    const cleanTitle = title.trim();
     const text = content.trim();
     const place = location.trim();
     if (!clubId) return setStatus({ type: "error", text: "Pick a club to post in." });
-    if (!text && !image) return setStatus({ type: "error", text: "Please add text or select an image!" });
+    if (cleanTitle.length < 2) return setStatus({ type: "error", text: "Please add a title (at least 2 characters)." });
+    let whenISO = null;
+    if (eventDate || eventClock) {
+      if (!eventDate || !eventClock) return setStatus({ type: "error", text: "Please pick both a date and a time for the event." });
+      const when = joinInput(eventDate, eventClock);
+      if (!when) return setStatus({ type: "error", text: "That date or time doesn’t look right. Please pick it again." });
+      whenISO = when.toISOString();
+    }
 
     setBusy(true);
     try {
       setStatus({ type: "info", text: "Checking your post with Gemini…" });
-      const result = await checkPost({ content: text, location: place, image });
+      const result = await checkPost({ content: `${cleanTitle}\n${text}`, location: place, image });
       if (!result.approved) return setStatus({ type: "error", text: `🚫 ${result.reason}` });
 
       // Only look the place up again if it is new or changed
@@ -156,6 +169,8 @@ function PostModal({ user, displayName, joinedClubs, defaultClubId, editing, onC
 
       if (editing) {
         await updateDoc(doc(db, "posts", editing.id), {
+          title: cleanTitle,
+          eventTime: whenISO,
           content: text,
           location: place || "General",
           lat,
@@ -169,6 +184,8 @@ function PostModal({ user, displayName, joinedClubs, defaultClubId, editing, onC
         await addDoc(collection(db, "posts"), {
           authorId: user.uid,
           authorName: displayName,
+          title: cleanTitle,
+          eventTime: whenISO,
           content: text,
           location: place || "General",
           lat,
@@ -204,10 +221,30 @@ function PostModal({ user, displayName, joinedClubs, defaultClubId, editing, onC
           ))}
         </select>
 
+        <label className="field-label" htmlFor="post-title">Title</label>
+        <input
+          id="post-title"
+          type="text"
+          maxLength={80}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="e.g. Beach Clean-up at Morib"
+        />
+
+        <label className="field-label" htmlFor="post-date">Date and time</label>
+        <div className="when-row">
+          <input id="post-date" type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} />
+          <input id="post-time" type="time" aria-label="Time" value={eventClock} onChange={(e) => setEventClock(e.target.value)} />
+        </div>
+        <p className="hint">Optional. Pick the date and the time if this is an event.</p>
+
+        <label className="field-label" htmlFor="post-details">Details</label>
         <textarea
+          id="post-details"
+          maxLength={1000}
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="Share updates, stories, or event details..."
+          placeholder="What’s happening? Who should come, what to bring, where to meet…"
         />
 
         <label className="field-label" htmlFor="club-post-image">Attach Photo</label>
@@ -418,6 +455,8 @@ export default function Clubs() {
                   )}
                 </div>
 
+                {p.title && <h4 className="post-title">{p.title}</h4>}
+                {p.eventTime && <div className="post-when">🕒 {formatWhen(p.eventTime)}</div>}
                 {p.content && <p className="post-text">{p.content}</p>}
                 {p.imageUrl && (
                   <div className="post-img-container" onClick={() => setLightbox(p.imageUrl)}>

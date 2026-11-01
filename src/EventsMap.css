@@ -72,3 +72,11 @@
     padding: 1rem;
   }
 }
+
+/* Event time */
+.events-page .event-card .event-when { font-size: 0.8rem; font-weight: 700; color: var(--moonstone-dark); margin: 0 0 0.4rem; }
+.map-popup .popup-when { font-size: 0.8rem; font-weight: 700; color: #3B8495; margin: 0 0 0.4rem; }
+
+/* Going count on cards, and the popup button */
+.events-page .event-card .event-going { margin-left: 0.4rem; font-size: 0.78rem; font-weight: 700; color: var(--moonstone-dark); }
+.map-popup .popup-more { margin-top: 0.5rem; background: #4C9DB0; color: #fff; border: none; border-radius: 8px; padding: 0.35rem 0.7rem; font-weight: 700; font-size: 0.78rem; cursor: pointer; }
