@@ -45,7 +45,8 @@ export default function EventDetail({ post, user, displayName, hostName, clubNam
   const iAmGoing = going.includes(me);
   const isHost = post.authorId === me;
   const when = post.eventTime ? new Date(post.eventTime) : null;
-  const isPast = when && !Number.isNaN(when.getTime()) && when.getTime() < Date.now();
+  const [now] = useState(() => Date.now()); // fixed when the panel opens
+  const isPast = when && !Number.isNaN(when.getTime()) && when.getTime() < now;
 
   const [goingBusy, setGoingBusy] = useState(false);
   const [goingError, setGoingError] = useState("");
@@ -68,8 +69,6 @@ export default function EventDetail({ post, user, displayName, hostName, clubNam
 
   // Live discussion thread: posts/{id}/comments
   useEffect(() => {
-    setComments([]);
-    setCommentsError("");
     const q = query(collection(db, "posts", post.id, "comments"), orderBy("createdAt", "asc"));
     return onSnapshot(
       q,
@@ -82,7 +81,7 @@ export default function EventDetail({ post, user, displayName, hostName, clubNam
   }, [post.id]);
 
   const commentName = useAuthorNames(comments);
-  const attendees = useMemo(() => going.map((id) => ({ authorId: id })), [going.join(",")]); // eslint-disable-line react-hooks/exhaustive-deps
+  const attendees = useMemo(() => (post.going || []).map((id) => ({ authorId: id })), [post.going]);
   const attendeeName = useAuthorNames(attendees);
 
   const title = post.title || (post.content || "").split("\n")[0].trim() || "Volunteer activity";
