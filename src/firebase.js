@@ -1,15 +1,14 @@
-   import { initializeApp } from "firebase/app";
-   import { getAuth, GoogleAuthProvider } from "firebase/auth";
-   import { getFirestore } from "firebase/firestore";
+import { initializeApp } from "firebase/app";
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCpOJXjSym6DVgddMP_AkgV5cOO688py8w",
-  authDomain: "pebbl-aba31.firebaseapp.com",
-  projectId: "pebbl-aba31",
-  storageBucket: "pebbl-aba31.firebasestorage.app",
-  messagingSenderId: "215254344183",
-  appId: "1:215254344183:web:8dd051be9d8f86b1588ef2",
-  measurementId: "G-34ZM31YCMY"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
 const app = initializeApp(firebaseConfig);
